@@ -32,7 +32,7 @@ export function Contact() {
       icon: MapPin,
       title: 'Endereço',
       value: 'Avenida Prefeito Pedro Paschoal, 1322',
-      description: 'Ribeirão Preto/SP',
+      description: 'Bebedouro/SP',
       action: 'https://maps.google.com/?q=-20.945527778,-48.492527778'
     }
   ]
@@ -97,7 +97,7 @@ export function Contact() {
                   <h3 className="font-semibold mb-2 text-primary">Endereço Completo</h3>
                   <p className="text-muted-foreground leading-relaxed">
                     Avenida Prefeito Pedro Paschoal, 1322<br />
-                    Ribeirão Preto/SP<br />
+                    Bebedouro/SP<br />
                     Coordenadas: 20°56'43.9"S 48°29'33.1"W
                   </p>
                 </div>
@@ -124,7 +124,7 @@ export function Contact() {
                     🏢 Localização
                   </h4>
                   <p className="text-sm text-muted-foreground">
-                    Na Avenida Prefeito Pedro Paschoal, região central de Ribeirão Preto, com fácil acesso e localização privilegiada.
+                    Na Avenida Prefeito Pedro Paschoal, região central de Bebedouro, com fácil acesso e localização privilegiada.
                   </p>
                 </div>
 
