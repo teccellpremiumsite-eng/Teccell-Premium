@@ -1,16 +1,23 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useKV } from '@github/spark/hooks'
-import { X, SignOut, Plus, Upload, Trash, Eye, Image, VideoCamera } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { toast } from 'sonner'
+import { 
+  X, 
+  Plus, 
+  Images, 
+  VideoCamera, 
+  Upload,
+  Trash,
+  Eye,
+  SignOut
+} from '@phosphor-icons/react'
 
 interface MediaItem {
   id: string
@@ -19,7 +26,6 @@ interface MediaItem {
   title: string
   description: string
   category: string
-  timestamp: number
 }
 
 interface AdminPanelProps {
@@ -29,248 +35,386 @@ interface AdminPanelProps {
 
 export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
   const [mediaItems, setMediaItems] = useKV<MediaItem[]>('gallery-items', [])
-  const [showUploadForm, setShowUploadForm] = useState(false)
-  const [formData, setFormData] = useState({
+  const [newItem, setNewItem] = useState<Partial<MediaItem>>({
+    type: 'image',
     title: '',
     description: '',
-    category: 'iphone',
-    type: 'image' as 'image' | 'video'
+    category: 'iPhone',
+    url: ''
   })
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const categories = ['iphone', 'macbook', 'imac', 'watch', 'outros']
+  const categories = ['iPhone', 'iPad', 'MacBook']
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    const newItem: MediaItem = {
-      id: Date.now().toString(),
-      url: `placeholder-${formData.type}`,
-      timestamp: Date.now(),
-      ...formData
+  const handleAddItem = () => {
+    if (!newItem.title || !newItem.url || !newItem.description) {
+      toast.error('Por favor, preencha todos os campos obrigatórios.')
+      return
     }
 
-    setMediaItems(current => [newItem, ...current])
-    setFormData({ title: '', description: '', category: 'iphone', type: 'image' })
-    setShowUploadForm(false)
-    toast.success('Mídia adicionada com sucesso!')
+    const item: MediaItem = {
+      id: Date.now().toString(),
+      type: newItem.type as 'image' | 'video',
+      url: newItem.url!,
+      title: newItem.title!,
+      description: newItem.description!,
+      category: newItem.category || 'iPhone'
+    }
+
+    setMediaItems((current) => [...current, item])
+    
+    setNewItem({
+      type: 'image',
+      title: '',
+      description: '',
+      category: 'iPhone',
+      url: ''
+    })
+    
+    setIsAddDialogOpen(false)
+    toast.success('Item adicionado com sucesso!')
   }
 
-  const handleDelete = (id: string) => {
-    setMediaItems(current => current.filter(item => item.id !== id))
+  const handleDeleteItem = (id: string) => {
+    setMediaItems((current) => current.filter(item => item.id !== id))
     toast.success('Item removido com sucesso!')
   }
 
-  const handleLogout = () => {
-    onLogout()
-    toast.success('Logout realizado com sucesso!')
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      // In a real application, you would upload the file to a server
+      // For now, we'll create a placeholder URL
+      const fakeUrl = URL.createObjectURL(file)
+      setNewItem(prev => ({ ...prev, url: fakeUrl }))
+      toast.success('Arquivo carregado! (Preview local)')
+    }
   }
 
+  const images = mediaItems.filter(item => item.type === 'image')
+  const videos = mediaItems.filter(item => item.type === 'video')
+
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <h1 className="text-xl font-bold text-foreground">
-              Painel Administrativo - Teccell Premium
-            </h1>
-            <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm" onClick={onClose}>
-                <X size={16} className="mr-2" />
-                Fechar
-              </Button>
-              <Button variant="destructive" size="sm" onClick={handleLogout}>
-                <SignOut size={16} className="mr-2" />
-                Sair
-              </Button>
-            </div>
+    <div className="fixed inset-0 bg-background z-50 overflow-auto">
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold">Painel Administrativo</h1>
+            <p className="text-muted-foreground">Gerencie a galeria de reparos</p>
           </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 lg:px-8 py-8">
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-foreground mb-2">
-                Gerenciar Galeria
-              </h2>
-              <p className="text-muted-foreground">
-                Adicione e gerencie fotos e vídeos dos trabalhos realizados
-              </p>
-            </div>
-            <Dialog open={showUploadForm} onOpenChange={setShowUploadForm}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus size={16} className="mr-2" />
-                  Adicionar Mídia
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Adicionar Nova Mídia</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="type">Tipo</Label>
-                    <Select
-                      value={formData.type}
-                      onValueChange={(value: 'image' | 'video') => 
-                        setFormData({ ...formData, type: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="image">
-                          <div className="flex items-center">
-                            <Image size={16} className="mr-2" />
-                            Imagem
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="video">
-                          <div className="flex items-center">
-                            <VideoCamera size={16} className="mr-2" />
-                            Vídeo
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Título</Label>
-                    <Input
-                      id="title"
-                      value={formData.title}
-                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      placeholder="Ex: Reparo placa iPhone 12"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="category">Categoria</Label>
-                    <Select
-                      value={formData.category}
-                      onValueChange={(value) => setFormData({ ...formData, category: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map(category => (
-                          <SelectItem key={category} value={category}>
-                            {category.charAt(0).toUpperCase() + category.slice(1)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Descrição</Label>
-                    <Textarea
-                      id="description"
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      placeholder="Descreva o trabalho realizado..."
-                      rows={3}
-                      required
-                    />
-                  </div>
-
-                  <div className="p-4 border-2 border-dashed border-border rounded-lg text-center">
-                    <Upload size={32} className="text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">
-                      Área de upload (simulação)
-                    </p>
-                  </div>
-
-                  <div className="flex space-x-2">
-                    <Button type="submit" className="flex-1">
-                      Adicionar
-                    </Button>
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      onClick={() => setShowUploadForm(false)}
-                    >
-                      Cancelar
-                    </Button>
-                  </div>
-                </form>
-              </DialogContent>
-            </Dialog>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={onLogout}>
+              <SignOut size={16} className="mr-2" />
+              Sair
+            </Button>
+            <Button variant="ghost" onClick={onClose}>
+              <X size={20} />
+            </Button>
           </div>
         </div>
 
-        <div className="grid gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Eye size={20} className="mr-2" />
-                Itens da Galeria ({mediaItems.length})
-              </CardTitle>
-              <CardDescription>
-                Gerencie todos os itens da galeria de trabalhos
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {mediaItems.length > 0 ? (
-                <div className="space-y-4">
-                  {mediaItems.map(item => (
-                    <div key={item.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center">
-                          {item.type === 'video' ? (
-                            <VideoCamera size={24} className="text-muted-foreground" />
-                          ) : (
-                            <Image size={24} className="text-muted-foreground" />
-                          )}
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-foreground">{item.title}</h4>
-                          <p className="text-sm text-muted-foreground line-clamp-1">
-                            {item.description}
-                          </p>
-                          <div className="flex items-center space-x-2 mt-2">
-                            <Badge variant="outline">{item.category}</Badge>
-                            <span className="text-xs text-muted-foreground">
-                              {new Date(item.timestamp).toLocaleDateString('pt-BR')}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDelete(item.id)}
-                      >
-                        <Trash size={16} />
-                      </Button>
-                    </div>
-                  ))}
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-2xl font-bold">{mediaItems.length}</p>
+                  <p className="text-muted-foreground text-sm">Total de Itens</p>
                 </div>
-              ) : (
-                <div className="text-center py-12">
-                  <Upload size={48} className="text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
-                    Nenhuma mídia encontrada
-                  </h3>
-                  <p className="text-muted-foreground mb-4">
-                    Comece adicionando fotos e vídeos dos seus trabalhos
-                  </p>
-                  <Button onClick={() => setShowUploadForm(true)}>
-                    <Plus size={16} className="mr-2" />
-                    Adicionar Primeira Mídia
-                  </Button>
+                <div className="w-12 h-12 rounded-lg bg-accent/10 text-accent flex items-center justify-center">
+                  <Images size={24} />
                 </div>
-              )}
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-2xl font-bold">{images.length}</p>
+                  <p className="text-muted-foreground text-sm">Fotos</p>
+                </div>
+                <div className="w-12 h-12 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                  <Images size={24} />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-2xl font-bold">{videos.length}</p>
+                  <p className="text-muted-foreground text-sm">Vídeos</p>
+                </div>
+                <div className="w-12 h-12 rounded-lg bg-green-100 text-green-600 flex items-center justify-center">
+                  <VideoCamera size={24} />
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
-      </main>
+
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Gerenciar Galeria</CardTitle>
+              <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus size={16} className="mr-2" />
+                    Adicionar Item
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Adicionar Novo Item</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Tipo</label>
+                      <Tabs 
+                        value={newItem.type} 
+                        onValueChange={(value) => setNewItem(prev => ({ ...prev, type: value as 'image' | 'video' }))}
+                        className="w-full"
+                      >
+                        <TabsList className="grid w-full grid-cols-2">
+                          <TabsTrigger value="image">Foto</TabsTrigger>
+                          <TabsTrigger value="video">Vídeo</TabsTrigger>
+                        </TabsList>
+                      </Tabs>
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Arquivo</label>
+                      <div className="space-y-2">
+                        <Input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleFileUpload}
+                          accept={newItem.type === 'image' ? 'image/*' : 'video/*'}
+                          className="hidden"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="w-full"
+                        >
+                          <Upload size={16} className="mr-2" />
+                          Escolher Arquivo
+                        </Button>
+                        {newItem.url && (
+                          <p className="text-xs text-green-600">✓ Arquivo carregado</p>
+                        )}
+                        <Input
+                          placeholder="Ou insira uma URL"
+                          value={newItem.url || ''}
+                          onChange={(e) => setNewItem(prev => ({ ...prev, url: e.target.value }))}
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Título *</label>
+                      <Input
+                        value={newItem.title || ''}
+                        onChange={(e) => setNewItem(prev => ({ ...prev, title: e.target.value }))}
+                        placeholder="Título do reparo"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Categoria *</label>
+                      <select
+                        className="w-full p-2 border rounded-md"
+                        value={newItem.category || 'iPhone'}
+                        onChange={(e) => setNewItem(prev => ({ ...prev, category: e.target.value }))}
+                      >
+                        {categories.map(cat => (
+                          <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Descrição *</label>
+                      <Textarea
+                        value={newItem.description || ''}
+                        onChange={(e) => setNewItem(prev => ({ ...prev, description: e.target.value }))}
+                        placeholder="Descreva o reparo realizado"
+                        rows={3}
+                      />
+                    </div>
+
+                    <Button onClick={handleAddItem} className="w-full">
+                      Adicionar Item
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="all">
+              <TabsList>
+                <TabsTrigger value="all">Todos ({mediaItems.length})</TabsTrigger>
+                <TabsTrigger value="images">Fotos ({images.length})</TabsTrigger>
+                <TabsTrigger value="videos">Vídeos ({videos.length})</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="all" className="space-y-4">
+                {mediaItems.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Images size={48} className="mx-auto mb-4 opacity-50" />
+                    <p>Nenhum item na galeria</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {mediaItems.map((item) => (
+                      <Card key={item.id} className="overflow-hidden">
+                        <div className="relative aspect-video">
+                          {item.type === 'image' ? (
+                            <img
+                              src={item.url}
+                              alt={item.title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-muted flex items-center justify-center">
+                              <VideoCamera size={32} className="text-muted-foreground" />
+                            </div>
+                          )}
+                          <Badge className="absolute top-2 left-2">
+                            {item.category}
+                          </Badge>
+                        </div>
+                        <CardContent className="p-4">
+                          <h3 className="font-medium line-clamp-1 mb-2">{item.title}</h3>
+                          <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+                            {item.description}
+                          </p>
+                          <div className="flex gap-2">
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button variant="outline" size="sm">
+                                  <Eye size={14} />
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-2xl">
+                                <div className="space-y-4">
+                                  {item.type === 'image' ? (
+                                    <img
+                                      src={item.url}
+                                      alt={item.title}
+                                      className="w-full h-auto"
+                                    />
+                                  ) : (
+                                    <video controls className="w-full">
+                                      <source src={item.url} type="video/mp4" />
+                                    </video>
+                                  )}
+                                  <div>
+                                    <h3 className="font-semibold text-lg">{item.title}</h3>
+                                    <p className="text-muted-foreground">{item.description}</p>
+                                  </div>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleDeleteItem(item.id)}
+                              className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                            >
+                              <Trash size={14} />
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="images">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {images.map((item) => (
+                    <Card key={item.id} className="overflow-hidden">
+                      <div className="relative aspect-video">
+                        <img
+                          src={item.url}
+                          alt={item.title}
+                          className="w-full h-full object-cover"
+                        />
+                        <Badge className="absolute top-2 left-2">
+                          {item.category}
+                        </Badge>
+                      </div>
+                      <CardContent className="p-4">
+                        <h3 className="font-medium line-clamp-1 mb-2">{item.title}</h3>
+                        <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+                          {item.description}
+                        </p>
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm">
+                            <Eye size={14} />
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleDeleteItem(item.id)}
+                            className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                          >
+                            <Trash size={14} />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="videos">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {videos.map((item) => (
+                    <Card key={item.id} className="overflow-hidden">
+                      <div className="relative aspect-video bg-muted flex items-center justify-center">
+                        <VideoCamera size={32} className="text-muted-foreground" />
+                        <Badge className="absolute top-2 left-2">
+                          {item.category}
+                        </Badge>
+                      </div>
+                      <CardContent className="p-4">
+                        <h3 className="font-medium line-clamp-1 mb-2">{item.title}</h3>
+                        <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+                          {item.description}
+                        </p>
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm">
+                            <Eye size={14} />
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleDeleteItem(item.id)}
+                            className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                          >
+                            <Trash size={14} />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

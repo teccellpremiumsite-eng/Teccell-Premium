@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useKV } from '@github/spark/hooks'
-import { Play, X, Eye } from '@phosphor-icons/react'
-import { Card } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Play, Images, VideoCamera, Wrench } from '@phosphor-icons/react'
 
 interface MediaItem {
   id: string
@@ -14,146 +14,225 @@ interface MediaItem {
   title: string
   description: string
   category: string
-  timestamp: number
+  beforeImage?: string
 }
 
 export function Gallery() {
-  const [mediaItems] = useKV<MediaItem[]>('gallery-items', [])
+  const [mediaItems] = useKV<MediaItem[]>('gallery-items', [
+    {
+      id: '1',
+      type: 'image',
+      url: 'https://images.unsplash.com/photo-1621768216002-5ac171876625?w=800&h=600&fit=crop',
+      title: 'Reparo de Placa iPhone 13 Pro',
+      description: 'Problema resolvido: Face ID não funcionando após queda',
+      category: 'iPhone'
+    },
+    {
+      id: '2',
+      type: 'image', 
+      url: 'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=800&h=600&fit=crop',
+      title: 'Microsoldagem MacBook Pro',
+      description: 'Substituição de IC de carregamento USB-C',
+      category: 'MacBook'
+    },
+    {
+      id: '3',
+      type: 'video',
+      url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+      title: 'Processo de Reparo iPad Pro',
+      description: 'Demonstração completa do processo de reparo',
+      category: 'iPad'
+    },
+    {
+      id: '4',
+      type: 'image',
+      url: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=800&h=600&fit=crop',
+      title: 'Dano por Líquido iPhone 12',
+      description: 'Limpeza ultrassônica e restauração completa',
+      category: 'iPhone'
+    }
+  ])
+
+  const [selectedCategory, setSelectedCategory] = useState<string>('Todos')
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null)
-  const [activeCategory, setActiveCategory] = useState('all')
 
-  const categories = ['all', ...Array.from(new Set(mediaItems.map(item => item.category)))]
+  const categories = ['Todos', 'iPhone', 'iPad', 'MacBook']
   
-  const filteredItems = activeCategory === 'all' 
+  const filteredItems = selectedCategory === 'Todos' 
     ? mediaItems 
-    : mediaItems.filter(item => item.category === activeCategory)
+    : mediaItems.filter(item => item.category === selectedCategory)
 
-  const MediaCard = ({ item }: { item: MediaItem }) => (
-    <Card className="group overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300">
-      <div className="aspect-video bg-muted relative overflow-hidden">
-        {item.type === 'video' ? (
-          <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-            <div className="w-16 h-16 bg-background/90 rounded-full flex items-center justify-center">
-              <Play size={24} className="text-foreground ml-1" />
-            </div>
-          </div>
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-muted to-muted-foreground/20" />
-        )}
-        
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() => setSelectedItem(item)}
-            className="backdrop-blur-sm"
-          >
-            <Eye size={16} className="mr-2" />
-            Ver Detalhes
-          </Button>
-        </div>
-        
-        <Badge 
-          variant="secondary" 
-          className="absolute top-3 left-3 backdrop-blur-sm"
-        >
-          {item.category}
-        </Badge>
-      </div>
-      
-      <div className="p-4">
-        <h3 className="font-semibold text-foreground mb-1">{item.title}</h3>
-        <p className="text-sm text-muted-foreground line-clamp-2">
-          {item.description}
-        </p>
-        <p className="text-xs text-muted-foreground mt-2">
-          {new Date(item.timestamp).toLocaleDateString('pt-BR')}
-        </p>
-      </div>
-    </Card>
-  )
+  const images = filteredItems.filter(item => item.type === 'image')
+  const videos = filteredItems.filter(item => item.type === 'video')
 
   return (
-    <section id="gallery" className="py-20 px-4 lg:px-8">
-      <div className="container mx-auto">
+    <section id="galeria" className="py-20">
+      <div className="container px-4 md:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <Badge variant="outline" className="mb-4">
+            <Images size={16} className="mr-2" />
+            Nossa Galeria
+          </Badge>
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">
             Trabalhos Realizados
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Veja alguns dos reparos mais desafiadores que realizamos. 
-            Cada caso é documentado com detalhes do processo técnico.
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Veja exemplos dos nossos reparos profissionais. Cada trabalho é documentado 
+            com fotos e vídeos do processo.
           </p>
         </div>
 
-        <Tabs value={activeCategory} onValueChange={setActiveCategory} className="mb-8">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-4">
-            {categories.slice(0, 4).map(category => (
-              <TabsTrigger 
-                key={category} 
-                value={category}
-                className="capitalize"
-              >
-                {category === 'all' ? 'Todos' : category}
-              </TabsTrigger>
-            ))}
+        <Tabs defaultValue="images" className="w-full">
+          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
+            <TabsTrigger value="images" className="flex items-center gap-2">
+              <Images size={16} />
+              Fotos ({images.length})
+            </TabsTrigger>
+            <TabsTrigger value="videos" className="flex items-center gap-2">
+              <VideoCamera size={16} />
+              Vídeos ({videos.length})
+            </TabsTrigger>
           </TabsList>
+
+          <div className="flex flex-wrap justify-center gap-2 mb-8">
+            {categories.map(category => (
+              <Button
+                key={category}
+                variant={selectedCategory === category ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedCategory(category)}
+                className="text-sm"
+              >
+                {category}
+              </Button>
+            ))}
+          </div>
+
+          <TabsContent value="images" className="space-y-8">
+            {images.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {images.map((item) => (
+                  <Dialog key={item.id}>
+                    <DialogTrigger asChild>
+                      <Card className="group cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                        <div className="relative aspect-[4/3] overflow-hidden">
+                          <img
+                            src={item.url}
+                            alt={item.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300">
+                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                              <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
+                                <Images size={20} className="text-primary" />
+                              </div>
+                            </div>
+                          </div>
+                          <Badge className="absolute top-3 right-3">
+                            {item.category}
+                          </Badge>
+                        </div>
+                        <CardContent className="p-4">
+                          <h3 className="font-semibold mb-2 line-clamp-1">{item.title}</h3>
+                          <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
+                        </CardContent>
+                      </Card>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+                      <div className="relative">
+                        <img
+                          src={item.url}
+                          alt={item.title}
+                          className="w-full h-auto max-h-[70vh] object-contain"
+                        />
+                        <div className="p-6">
+                          <div className="flex items-start justify-between mb-4">
+                            <div>
+                              <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
+                              <p className="text-muted-foreground">{item.description}</p>
+                            </div>
+                            <Badge>{item.category}</Badge>
+                          </div>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Images size={48} className="mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">Nenhuma foto encontrada para esta categoria.</p>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="videos" className="space-y-8">
+            {videos.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {videos.map((item) => (
+                  <Dialog key={item.id}>
+                    <DialogTrigger asChild>
+                      <Card className="group cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                        <div className="relative aspect-video overflow-hidden bg-muted">
+                          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-accent/20 to-primary/20">
+                            <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                              <Play size={24} className="text-primary ml-1" weight="fill" />
+                            </div>
+                          </div>
+                          <Badge className="absolute top-3 right-3">
+                            {item.category}
+                          </Badge>
+                        </div>
+                        <CardContent className="p-4">
+                          <h3 className="font-semibold mb-2 line-clamp-1">{item.title}</h3>
+                          <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
+                        </CardContent>
+                      </Card>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-4xl">
+                      <div className="space-y-4">
+                        <video
+                          controls
+                          className="w-full aspect-video rounded-lg"
+                          poster=""
+                        >
+                          <source src={item.url} type="video/mp4" />
+                          Seu navegador não suporta o elemento de vídeo.
+                        </video>
+                        <div>
+                          <div className="flex items-start justify-between mb-2">
+                            <h3 className="text-xl font-semibold">{item.title}</h3>
+                            <Badge>{item.category}</Badge>
+                          </div>
+                          <p className="text-muted-foreground">{item.description}</p>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <VideoCamera size={48} className="mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">Nenhum vídeo encontrado para esta categoria.</p>
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
 
-        {filteredItems.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredItems.map(item => (
-              <MediaCard key={item.id} item={item} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-20">
-            <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-              <Eye size={32} className="text-muted-foreground" />
-            </div>
-            <h3 className="text-xl font-semibold text-foreground mb-2">
-              Em breve
-            </h3>
-            <p className="text-muted-foreground max-w-md mx-auto">
-              Estamos documentando nossos melhores trabalhos. 
-              Em breve você poderá ver nossa galeria de reparos realizados.
-            </p>
-          </div>
-        )}
-
-        <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
-          <DialogContent className="max-w-2xl">
-            {selectedItem && (
-              <>
-                <DialogHeader>
-                  <DialogTitle>{selectedItem.title}</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                    {selectedItem.type === 'video' ? (
-                      <div className="w-20 h-20 bg-background/90 rounded-full flex items-center justify-center">
-                        <Play size={28} className="text-foreground ml-1" />
-                      </div>
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-muted to-muted-foreground/20 rounded-lg" />
-                    )}
-                  </div>
-                  <div>
-                    <Badge variant="outline" className="mb-3">
-                      {selectedItem.category}
-                    </Badge>
-                    <p className="text-muted-foreground">
-                      {selectedItem.description}
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-3">
-                      Realizado em {new Date(selectedItem.timestamp).toLocaleDateString('pt-BR')}
-                    </p>
-                  </div>
-                </div>
-              </>
-            )}
-          </DialogContent>
-        </Dialog>
+        <div className="mt-16 text-center">
+          <Card className="max-w-2xl mx-auto bg-gradient-to-r from-accent/5 to-primary/5 border-accent/20">
+            <CardContent className="p-8">
+              <Wrench size={48} className="mx-auto text-accent mb-4" />
+              <h3 className="text-2xl font-bold mb-4">Documentamos Cada Reparo</h3>
+              <p className="text-muted-foreground">
+                Registramos todo o processo de reparo com fotos e vídeos para garantir transparência 
+                e qualidade em cada serviço realizado.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </section>
   )
