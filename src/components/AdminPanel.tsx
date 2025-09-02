@@ -19,7 +19,9 @@ import {
   Eye,
   SignOut,
   Star,
-  ChatCircle
+  ChatCircle,
+  GoogleLogo,
+  FacebookLogo
 } from '@phosphor-icons/react'
 
 interface MediaItem {
@@ -41,6 +43,9 @@ interface Testimonial {
   testimonial: string
   repairType: string
   date: string
+  platform: 'google' | 'facebook' | 'local'
+  verified?: boolean
+  reviewUrl?: string
 }
 
 interface AdminPanelProps {
@@ -65,7 +70,10 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
     rating: 5,
     testimonial: '',
     repairType: '',
-    date: new Date().toISOString().split('T')[0]
+    date: new Date().toISOString().split('T')[0],
+    platform: 'local',
+    verified: false,
+    reviewUrl: ''
   })
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isAddTestimonialOpen, setIsAddTestimonialOpen] = useState(false)
@@ -117,7 +125,10 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
       testimonial: newTestimonial.testimonial!,
       repairType: newTestimonial.repairType || '',
       date: newTestimonial.date || new Date().toISOString().split('T')[0],
-      avatar: newTestimonial.avatar
+      avatar: newTestimonial.avatar,
+      platform: newTestimonial.platform || 'local',
+      verified: newTestimonial.verified || false,
+      reviewUrl: newTestimonial.reviewUrl
     }
 
     setTestimonials((current) => [...current, testimonial])
@@ -129,7 +140,10 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
       rating: 5,
       testimonial: '',
       repairType: '',
-      date: new Date().toISOString().split('T')[0]
+      date: new Date().toISOString().split('T')[0],
+      platform: 'local',
+      verified: false,
+      reviewUrl: ''
     })
     
     setIsAddTestimonialOpen(false)
@@ -615,6 +629,46 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
                     </div>
 
                     <div>
+                      <label className="text-sm font-medium mb-2 block">Plataforma</label>
+                      <select
+                        className="w-full p-2 border rounded-md"
+                        value={newTestimonial.platform || 'local'}
+                        onChange={(e) => setNewTestimonial(prev => ({ 
+                          ...prev, 
+                          platform: e.target.value as 'google' | 'facebook' | 'local' 
+                        }))}
+                      >
+                        <option value="google">Google Reviews</option>
+                        <option value="facebook">Facebook Reviews</option>
+                        <option value="local">Cliente Direto</option>
+                      </select>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="verified"
+                        checked={newTestimonial.verified || false}
+                        onChange={(e) => setNewTestimonial(prev => ({ ...prev, verified: e.target.checked }))}
+                        className="rounded border-input"
+                      />
+                      <label htmlFor="verified" className="text-sm font-medium">
+                        Avaliação Verificada
+                      </label>
+                    </div>
+
+                    {(newTestimonial.platform === 'google' || newTestimonial.platform === 'facebook') && (
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">URL da Avaliação</label>
+                        <Input
+                          value={newTestimonial.reviewUrl || ''}
+                          onChange={(e) => setNewTestimonial(prev => ({ ...prev, reviewUrl: e.target.value }))}
+                          placeholder="https://g.co/kgs/... ou https://facebook.com/..."
+                        />
+                      </div>
+                    )}
+
+                    <div>
                       <label className="text-sm font-medium mb-2 block">Data</label>
                       <Input
                         type="date"
@@ -679,6 +733,23 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
                           {testimonial.repairType && (
                             <Badge variant="outline" className="text-xs">
                               {testimonial.repairType}
+                            </Badge>
+                          )}
+                          {testimonial.platform === 'google' && (
+                            <Badge variant="outline" className="text-xs flex items-center space-x-1">
+                              <GoogleLogo className="w-3 h-3 text-blue-500" />
+                              <span>Google</span>
+                            </Badge>
+                          )}
+                          {testimonial.platform === 'facebook' && (
+                            <Badge variant="outline" className="text-xs flex items-center space-x-1">
+                              <FacebookLogo className="w-3 h-3 text-blue-600" />
+                              <span>Facebook</span>
+                            </Badge>
+                          )}
+                          {testimonial.verified && (
+                            <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+                              Verificada
                             </Badge>
                           )}
                           <span className="text-xs text-muted-foreground">

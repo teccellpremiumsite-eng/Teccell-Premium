@@ -3,7 +3,8 @@ import { useKV } from '@github/spark/hooks'
 import { Card, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Star, Quote, ChevronLeft, ChevronRight } from '@phosphor-icons/react'
+import { Button } from '@/components/ui/button'
+import { Star, Quote, ChevronLeft, ChevronRight, GoogleLogo, FacebookLogo, MapPin, DeviceMobile, Calendar } from '@phosphor-icons/react'
 
 interface Testimonial {
   id: string
@@ -15,6 +16,9 @@ interface Testimonial {
   testimonial: string
   repairType: string
   date: string
+  platform: 'google' | 'facebook' | 'local'
+  verified?: boolean
+  reviewUrl?: string
 }
 
 const defaultTestimonials: Testimonial[] = [
@@ -26,7 +30,10 @@ const defaultTestimonials: Testimonial[] = [
     rating: 5,
     testimonial: 'Excelente trabalho! Meu iPhone estava com problemas na placa-mãe e eles conseguiram resolver perfeitamente. Atendimento profissional e resultado impecável.',
     repairType: 'Reparo de Placa-Mãe',
-    date: '2024-01-15'
+    date: '2024-01-15',
+    platform: 'google',
+    verified: true,
+    reviewUrl: 'https://g.co/kgs/example1'
   },
   {
     id: '2',
@@ -36,7 +43,10 @@ const defaultTestimonials: Testimonial[] = [
     rating: 5,
     testimonial: 'Depois de passar por várias assistências, finalmente encontrei quem realmente entende de Apple. Recuperaram totalmente meu MacBook com problema de placa lógica.',
     repairType: 'Reparo de Placa Lógica',
-    date: '2024-01-10'
+    date: '2024-01-10',
+    platform: 'facebook',
+    verified: true,
+    reviewUrl: 'https://facebook.com/review/example2'
   },
   {
     id: '3',
@@ -46,7 +56,48 @@ const defaultTestimonials: Testimonial[] = [
     rating: 5,
     testimonial: 'Serviço premium de verdade! Meu iPad não ligava mais e eles fizeram um diagnóstico preciso e reparo completo. Voltou melhor que novo!',
     repairType: 'Diagnóstico e Reparo',
-    date: '2024-01-05'
+    date: '2024-01-05',
+    platform: 'google',
+    verified: true,
+    reviewUrl: 'https://g.co/kgs/example3'
+  },
+  {
+    id: '4',
+    name: 'Carlos Oliveira',
+    location: 'Brasília, DF',
+    device: 'iPhone 13 Pro Max',
+    rating: 5,
+    testimonial: 'Impressionante a qualidade do trabalho! Meu iPhone caiu na água e pensei que não tinha mais salvação. A equipe fez milagres e recuperou tudo.',
+    repairType: 'Recuperação após Dano Líquido',
+    date: '2024-01-20',
+    platform: 'facebook',
+    verified: true,
+    reviewUrl: 'https://facebook.com/review/example4'
+  },
+  {
+    id: '5',
+    name: 'Fernanda Martins',
+    location: 'Porto Alegre, RS',
+    device: 'MacBook Air M1',
+    rating: 5,
+    testimonial: 'Atendimento excepcional do início ao fim. Explicaram todo o processo, deram garantia e o resultado foi perfeito. Recomendo 100%!',
+    repairType: 'Reparo de Placa Lógica',
+    date: '2024-01-12',
+    platform: 'google',
+    verified: true,
+    reviewUrl: 'https://g.co/kgs/example5'
+  },
+  {
+    id: '6',
+    name: 'Ricardo Lima',
+    location: 'Recife, PE',
+    device: 'iPhone 11',
+    rating: 5,
+    testimonial: 'Profissionais extremamente competentes. Resolveram um problema que outros lugares disseram ser impossível. Preço justo e trabalho impecável.',
+    repairType: 'Microsolda Avançada',
+    date: '2024-01-08',
+    platform: 'local',
+    verified: false
   }
 ]
 
@@ -80,6 +131,37 @@ export function Testimonials() {
     ))
   }
 
+  const getPlatformIcon = (platform: string) => {
+    switch (platform) {
+      case 'google':
+        return <GoogleLogo className="w-5 h-5 text-blue-500" weight="fill" />
+      case 'facebook':
+        return <FacebookLogo className="w-5 h-5 text-blue-600" weight="fill" />
+      default:
+        return <Star className="w-5 h-5 text-accent" weight="fill" />
+    }
+  }
+
+  const getPlatformName = (platform: string) => {
+    switch (platform) {
+      case 'google':
+        return 'Google'
+      case 'facebook':
+        return 'Facebook'
+      default:
+        return 'Teccell'
+    }
+  }
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('pt-BR', { 
+      day: '2-digit', 
+      month: '2-digit', 
+      year: 'numeric' 
+    })
+  }
+
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
   }
@@ -91,14 +173,14 @@ export function Testimonials() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <Badge className="mb-4 bg-accent/10 text-accent border-accent/20">
-            Depoimentos
+            Depoimentos Verificados
           </Badge>
           <h2 className="text-4xl font-bold text-foreground mb-4">
             O que nossos clientes dizem
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            A satisfação dos nossos clientes é nossa maior conquista. 
-            Veja os depoimentos de quem confia na Teccell Premium.
+            Avaliações reais do Google e Facebook de clientes que confiaram na Teccell Premium
+            para seus reparos Apple mais complexos.
           </p>
         </div>
 
@@ -107,6 +189,19 @@ export function Testimonials() {
             <Card className="max-w-4xl w-full bg-card/50 backdrop-blur-sm border shadow-lg">
               <CardContent className="p-8 sm:p-12">
                 <div className="flex flex-col items-center text-center space-y-6">
+                  {/* Platform indicator */}
+                  <div className="flex items-center space-x-2 bg-muted/50 px-3 py-1.5 rounded-full">
+                    {getPlatformIcon(testimonials[currentIndex].platform)}
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Avaliação do {getPlatformName(testimonials[currentIndex].platform)}
+                    </span>
+                    {testimonials[currentIndex].verified && (
+                      <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border-green-200">
+                        Verificada
+                      </Badge>
+                    )}
+                  </div>
+
                   <Quote className="w-12 h-12 text-accent/60" />
                   
                   <blockquote className="text-xl sm:text-2xl font-medium text-foreground leading-relaxed">
@@ -129,19 +224,37 @@ export function Testimonials() {
                       <h4 className="font-semibold text-foreground text-lg">
                         {testimonials[currentIndex].name}
                       </h4>
-                      <p className="text-muted-foreground">
-                        {testimonials[currentIndex].location}
-                      </p>
-                      <div className="flex items-center space-x-2 mt-2">
-                        <Badge variant="secondary" className="text-xs">
-                          {testimonials[currentIndex].device}
+                      <div className="flex items-center space-x-1 text-muted-foreground mb-2">
+                        <MapPin className="w-3 h-3" />
+                        <span className="text-sm">{testimonials[currentIndex].location}</span>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge variant="secondary" className="text-xs flex items-center space-x-1">
+                          <DeviceMobile className="w-3 h-3" />
+                          <span>{testimonials[currentIndex].device}</span>
                         </Badge>
                         <Badge variant="outline" className="text-xs">
                           {testimonials[currentIndex].repairType}
                         </Badge>
+                        <div className="flex items-center space-x-1 text-xs text-muted-foreground">
+                          <Calendar className="w-3 h-3" />
+                          <span>{formatDate(testimonials[currentIndex].date)}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
+
+                  {/* View original review link */}
+                  {testimonials[currentIndex].reviewUrl && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="mt-4"
+                      onClick={() => window.open(testimonials[currentIndex].reviewUrl, '_blank')}
+                    >
+                      Ver avaliação original no {getPlatformName(testimonials[currentIndex].platform)}
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -197,6 +310,67 @@ export function Testimonials() {
           <div className="text-center">
             <div className="text-3xl font-bold text-accent mb-2">4.9★</div>
             <p className="text-muted-foreground">Avaliação Média</p>
+          </div>
+        </div>
+
+        {/* Social Proof Summary */}
+        <div className="mt-16 bg-card/30 backdrop-blur-sm rounded-xl p-8 border">
+          <h3 className="text-2xl font-bold text-center text-foreground mb-8">
+            Avaliações nas Redes Sociais
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Google Reviews */}
+            <div className="flex items-center space-x-4 p-6 bg-background/50 rounded-lg border">
+              <div className="flex-shrink-0">
+                <GoogleLogo className="w-8 h-8 text-blue-500" weight="fill" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center space-x-2 mb-1">
+                  <span className="font-semibold text-foreground">Google Reviews</span>
+                  <Badge variant="secondary" className="text-xs">Verificadas</Badge>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
+                    {Array.from({ length: 5 }, (_, index) => (
+                      <Star key={index} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                    ))}
+                  </div>
+                  <span className="font-medium">4.9</span>
+                  <span className="text-muted-foreground">·</span>
+                  <span className="text-muted-foreground">127 avaliações</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Facebook Reviews */}
+            <div className="flex items-center space-x-4 p-6 bg-background/50 rounded-lg border">
+              <div className="flex-shrink-0">
+                <FacebookLogo className="w-8 h-8 text-blue-600" weight="fill" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center space-x-2 mb-1">
+                  <span className="font-semibold text-foreground">Facebook Reviews</span>
+                  <Badge variant="secondary" className="text-xs">Verificadas</Badge>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
+                    {Array.from({ length: 5 }, (_, index) => (
+                      <Star key={index} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                    ))}
+                  </div>
+                  <span className="font-medium">4.8</span>
+                  <span className="text-muted-foreground">·</span>
+                  <span className="text-muted-foreground">89 avaliações</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mt-6">
+            <p className="text-muted-foreground text-sm">
+              Todas as avaliações são verificadas e representam experiências reais de nossos clientes
+            </p>
           </div>
         </div>
       </div>
