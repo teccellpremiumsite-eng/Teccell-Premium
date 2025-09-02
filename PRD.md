@@ -26,11 +26,18 @@ Site profissional para empresa especializada em reparo de placas Apple com paine
 - **Progression**: Seleção de categoria → Visualização em grid → Modal detalhado → Ações
 - **Success criteria**: Tempo de permanência e engajamento com conteúdo
 
+### Depoimentos de Clientes
+- **Functionality**: Carrossel rotativo com depoimentos de clientes satisfeitos
+- **Purpose**: Construir confiança através de prova social e experiências reais
+- **Trigger**: Visualização automática durante navegação na página
+- **Progression**: Rotação automática → Navegação manual → Leitura completa
+- **Success criteria**: Aumento na taxa de conversão e redução na taxa de rejeição
+
 ### Painel Administrativo
-- **Functionality**: Interface para upload e gerenciamento de fotos/vídeos dos reparos
-- **Purpose**: Permitir atualização fácil do portfólio pela equipe
+- **Functionality**: Interface para upload e gerenciamento de fotos/vídeos dos reparos e depoimentos
+- **Purpose**: Permitir atualização fácil do portfólio e depoimentos pela equipe
 - **Trigger**: Login de administrador
-- **Progression**: Login → Dashboard → Upload mídia → Organização por categoria → Publicação
+- **Progression**: Login → Dashboard → Upload mídia/depoimentos → Organização → Publicação
 - **Success criteria**: Facilidade de uso e eficiência na atualização de conteúdo
 
 ### Sistema de Autenticação
