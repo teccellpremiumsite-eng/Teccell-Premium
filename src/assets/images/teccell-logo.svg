@@ -1,0 +1,7 @@
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="40" height="40" rx="8" fill="#007AFF"/>
+  <path d="M20 8C24.4183 8 28 11.5817 28 16C28 20.4183 24.4183 24 20 24C15.5817 24 12 20.4183 12 16C12 11.5817 15.5817 8 20 8Z" fill="white"/>
+  <path d="M20 12C21.6569 12 23 13.3431 23 15C23 16.6569 21.6569 18 20 18C18.3431 18 17 16.6569 17 15C17 13.3431 18.3431 12 20 12Z" fill="#007AFF"/>
+  <rect x="14" y="28" width="12" height="4" rx="2" fill="#34C759"/>
+  <text x="20" y="36" text-anchor="middle" fill="#007AFF" font-family="Arial, sans-serif" font-size="6" font-weight="bold">TECCELL</text>
+</svg>
