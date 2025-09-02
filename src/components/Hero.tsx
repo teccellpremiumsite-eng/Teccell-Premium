@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import { ArrowRight, Wrench, CheckCircle } from '@phosphor-icons/react'
+import { ArrowRight, House, CheckCircle } from '@phosphor-icons/react'
 import logoFundo from '@/assets/images/logo fundo.webp'
 
 export function Hero() {
@@ -23,10 +23,12 @@ export function Hero() {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-            <Button size="lg" className="px-8 py-6 text-lg font-semibold bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border-white/30">
-              <Wrench size={20} className="mr-2" />
-              Solicitar Orçamento
-              <ArrowRight size={16} className="ml-2" />
+            <Button 
+              size="lg" 
+              className="px-8 py-6 text-lg font-semibold bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border-white/30"
+              onClick={() => window.open('https://www.google.com/maps?q=-20.945527778,-48.492527778', '_blank')}
+            >
+              📍 Nossa Localização
             </Button>
             <Button variant="outline" size="lg" className="px-8 py-6 text-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border-white/30">
               Ver Nossos Trabalhos

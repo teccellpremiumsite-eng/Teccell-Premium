@@ -1,15 +1,10 @@
-import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
-import { toast } from 'sonner'
 import { 
   MapPin, 
   Clock, 
   Phone, 
-  Envelope, 
   WhatsappLogo,
   InstagramLogo,
   FacebookLogo,
@@ -17,44 +12,6 @@ import {
 } from '@phosphor-icons/react'
 
 export function Contact() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    device: '',
-    problem: '',
-    message: ''
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1500))
-
-    toast.success('Mensagem enviada com sucesso! Entraremos em contato em breve.', {
-      duration: 4000,
-    })
-
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      device: '',
-      problem: '',
-      message: ''
-    })
-    setIsSubmitting(false)
-  }
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }))
-  }
 
   const contactInfo = [
     {
@@ -72,18 +29,11 @@ export function Contact() {
       action: 'https://wa.me/5511999999999'
     },
     {
-      icon: Envelope,
-      title: 'E-mail',
-      value: 'contato@teccellpremium.com',
-      description: 'Resposta em até 2h',
-      action: 'mailto:contato@teccellpremium.com'
-    },
-    {
       icon: MapPin,
       title: 'Endereço',
-      value: 'Rua da Tecnologia, 123',
-      description: 'São Paulo - SP',
-      action: 'https://maps.google.com'
+      value: 'Avenida Prefeito Pedro Paschoal, 1322',
+      description: 'Ribeirão Preto/SP',
+      action: 'https://maps.google.com/?q=-20.945527778,-48.492527778'
     }
   ]
 
@@ -137,97 +87,56 @@ export function Contact() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Envelope size={20} />
-                Solicitar Orçamento
+                📍
+                Nossa Localização
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Nome *</label>
-                    <Input
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      placeholder="Seu nome completo"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Telefone *</label>
-                    <Input
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      placeholder="(11) 99999-9999"
-                      required
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium mb-2 block">E-mail</label>
-                  <Input
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="seu@email.com"
-                  />
+              <div className="space-y-4">
+                <div className="p-4 bg-gradient-to-br from-primary/5 to-accent/5 rounded-lg border">
+                  <h3 className="font-semibold mb-2 text-primary">Endereço Completo</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Avenida Prefeito Pedro Paschoal, 1322<br />
+                    Ribeirão Preto/SP<br />
+                    Coordenadas: 20°56'43.9"S 48°29'33.1"W
+                  </p>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Dispositivo *</label>
-                    <Input
-                      name="device"
-                      value={formData.device}
-                      onChange={handleChange}
-                      placeholder="ex: iPhone 13 Pro"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Problema</label>
-                    <Input
-                      name="problem"
-                      value={formData.problem}
-                      onChange={handleChange}
-                      placeholder="ex: Não carrega"
-                    />
-                  </div>
+                  <Button
+                    onClick={() => window.open('https://maps.google.com/?q=-20.945527778,-48.492527778', '_blank')}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    🗺️ Ver no Google Maps
+                  </Button>
+                  <Button
+                    onClick={() => window.open('https://www.waze.com/pt-BR/live-map/directions?to=ll.-20.945527778%2C-48.492527778', '_blank')}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    🚗 Abrir no Waze
+                  </Button>
                 </div>
-                
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Mensagem</label>
-                  <Textarea
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    placeholder="Descreva o problema com mais detalhes..."
-                    rows={4}
-                  />
+
+                <div className="p-4 bg-muted/30 rounded-lg">
+                  <h4 className="font-medium mb-2 flex items-center gap-2">
+                    🏢 Localização
+                  </h4>
+                  <p className="text-sm text-muted-foreground">
+                    Na Avenida Prefeito Pedro Paschoal, região central de Ribeirão Preto, com fácil acesso e localização privilegiada.
+                  </p>
                 </div>
-                
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2"></div>
-                      Enviando...
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle size={16} className="mr-2" />
-                      Enviar Mensagem
-                    </>
-                  )}
-                </Button>
-              </form>
+
+                <div className="p-4 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-950 dark:to-blue-950 rounded-lg border">
+                  <h4 className="font-medium mb-2 flex items-center gap-2 text-green-700 dark:text-green-400">
+                    🚗 Acesso
+                  </h4>
+                  <p className="text-sm text-muted-foreground">
+                    Localização de fácil acesso com estacionamento disponível na região.
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
