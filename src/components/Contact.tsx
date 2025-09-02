@@ -17,16 +17,16 @@ export function Contact() {
     {
       icon: Phone,
       title: 'Telefone',
-      value: '(11) 99999-9999',
+      value: '(17) 99774-6622',
       description: 'Seg-Sex: 9h às 18h',
-      action: 'tel:+5511999999999'
+      action: 'tel:+5517997746622'
     },
     {
       icon: WhatsappLogo,
       title: 'WhatsApp',
-      value: '(11) 99999-9999',
+      value: '(17) 99774-6622',
       description: 'Atendimento rápido',
-      action: 'https://wa.me/5511999999999'
+      action: 'https://wa.me/5517997746622'
     },
     {
       icon: MapPin,

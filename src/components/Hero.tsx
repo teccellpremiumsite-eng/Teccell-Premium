@@ -26,9 +26,9 @@ export function Hero() {
             <Button 
               size="lg" 
               className="px-8 py-6 text-lg font-semibold bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border-white/30"
-              onClick={() => window.open('https://www.google.com/maps?q=-20.945527778,-48.492527778', '_blank')}
+              onClick={() => window.open('https://wa.me/5517997746622?text=Olá! Gostaria de solicitar um orçamento para reparo de placa Apple.', '_blank')}
             >
-              📍 Nossa Localização
+              � Solicitar Orçamento
             </Button>
             <Button variant="outline" size="lg" className="px-8 py-6 text-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border-white/30">
               Ver Nossos Trabalhos
