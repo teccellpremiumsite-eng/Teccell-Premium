@@ -55,8 +55,7 @@ export function Contact() {
             Fale Conosco
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Está com problemas no seu dispositivo Apple? Entre em contato conosco e 
-            receba um diagnóstico gratuito e orçamento sem compromisso.
+            Está com problemas no seu dispositivo Apple? Entre em contato conosco!
           </p>
         </div>
 

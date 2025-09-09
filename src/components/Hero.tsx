@@ -1,6 +1,8 @@
+
 import { Button } from '@/components/ui/button'
 import { ArrowRight, House, CheckCircle } from '@phosphor-icons/react'
-import logoFundo from '@/assets/images/logo fundo.webp'
+import videoFundo from '@/assets/images/logo fundo.mp4'
+
 
 export function Hero() {
   return (
@@ -52,12 +54,15 @@ export function Hero() {
         </div>
       </div>
       
-      {/* Logo cobrindo 100% da tela como fundo */}
+      {/* Vídeo cobrindo 100% da tela como fundo */}
       <div className="absolute inset-0 w-full h-full flex items-center justify-center">
-        <img 
-          src={logoFundo} 
-          alt="Teccell Premium Background Logo" 
-          className="max-w-full max-h-full object-contain"
+        <video
+          src={videoFundo}
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/40"></div>
       </div>
