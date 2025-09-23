@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { useKV } from '@github/spark/hooks'
 import { Card, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -102,7 +101,7 @@ const defaultTestimonials: Testimonial[] = [
 ]
 
 export function Testimonials() {
-  const [testimonials, setTestimonials] = useKV<Testimonial[]>('testimonials', defaultTestimonials)
+  const [testimonials] = useState<Testimonial[]>(defaultTestimonials)
   const [currentIndex, setCurrentIndex] = useState(0)
 
   useEffect(() => {

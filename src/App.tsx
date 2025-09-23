@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { useKV } from '@github/spark/hooks'
 import { Header } from './components/Header'
 import { Hero } from './components/Hero'
 import { Services } from './components/Services'
@@ -12,13 +11,22 @@ import { LoginForm } from './components/LoginForm'
 import { Toaster } from '@/components/ui/sonner'
 
 function App() {
-  const [isAdmin, setIsAdmin] = useKV('admin-session', false)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
   const [showAdmin, setShowAdmin] = useState(false)
+
+  // Carregar estado do admin do localStorage
+  useEffect(() => {
+    const adminSession = localStorage.getItem('admin-session')
+    if (adminSession === 'true') {
+      setIsAdmin(true)
+    }
+  }, [])
 
   const handleLogin = (success: boolean) => {
     if (success) {
       setIsAdmin(true)
+      localStorage.setItem('admin-session', 'true')
       setShowLogin(false)
       setShowAdmin(true)
     }
@@ -26,6 +34,7 @@ function App() {
 
   const handleLogout = () => {
     setIsAdmin(false)
+    localStorage.setItem('admin-session', 'false')
     setShowAdmin(false)
   }
 

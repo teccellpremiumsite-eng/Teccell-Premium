@@ -1,5 +1,4 @@
-import React, { useState, useRef } from 'react'
-import { useKV } from '@github/spark/hooks'
+import React, { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -54,8 +53,8 @@ interface AdminPanelProps {
 }
 
 export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
-  const [mediaItems, setMediaItems] = useKV<MediaItem[]>('gallery-items', [])
-  const [testimonials, setTestimonials] = useKV<Testimonial[]>('testimonials', [])
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>([])
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([])
   const [newItem, setNewItem] = useState<Partial<MediaItem>>({
     type: 'image',
     title: '',

@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { useKV } from '@github/spark/hooks'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -18,7 +17,7 @@ interface MediaItem {
 }
 
 export function Gallery() {
-  const [mediaItems] = useKV<MediaItem[]>('gallery-items', [
+  const [mediaItems] = useState<MediaItem[]>([
     {
       id: '1',
       type: 'image',
