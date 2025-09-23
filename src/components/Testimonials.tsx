@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Star, Quote, ChevronLeft, ChevronRight, GoogleLogo, FacebookLogo, MapPin, DeviceMobile, Calendar } from '@phosphor-icons/react'
+import { Star, Quotes, CaretLeft, CaretRight, GoogleLogo, FacebookLogo, MapPin, DeviceMobile, Calendar } from 'phosphor-react'
 
 interface Testimonial {
   id: string
@@ -102,21 +102,25 @@ const defaultTestimonials: Testimonial[] = [
 ]
 
 export function Testimonials() {
-  const [testimonials, setTestimonials] = useKV('testimonials', defaultTestimonials)
+  const [testimonials, setTestimonials] = useKV<Testimonial[]>('testimonials', defaultTestimonials)
   const [currentIndex, setCurrentIndex] = useState(0)
 
   useEffect(() => {
+    if (!testimonials || testimonials.length === 0) return
+    
     const interval = setInterval(() => {
       setCurrentIndex(prev => (prev + 1) % testimonials.length)
     }, 5000)
     return () => clearInterval(interval)
-  }, [testimonials.length])
+  }, [testimonials?.length])
 
   const nextTestimonial = () => {
+    if (!testimonials || testimonials.length === 0) return
     setCurrentIndex(prev => (prev + 1) % testimonials.length)
   }
 
   const prevTestimonial = () => {
+    if (!testimonials || testimonials.length === 0) return
     setCurrentIndex(prev => (prev - 1 + testimonials.length) % testimonials.length)
   }
 
@@ -166,93 +170,91 @@ export function Testimonials() {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
   }
 
-  if (testimonials.length === 0) return null
+  if (!testimonials || testimonials.length === 0) return null
+
+  const currentTestimonial = testimonials[currentIndex]
 
   return (
-    <section className="py-24 bg-muted/30">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <Badge className="mb-4 bg-accent/10 text-accent border-accent/20">
+    <section className="h-screen bg-gradient-to-br from-gray-400 via-gray-200 to-white dark:from-gray-700 dark:via-gray-500 dark:to-gray-300 flex items-center justify-center overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full h-full flex flex-col justify-center">
+        <div className="text-center mb-4 flex-shrink-0">
+          <Badge className="mb-2 bg-accent/10 text-accent border-accent/20">
             Depoimentos Verificados
           </Badge>
-          <h2 className="text-4xl font-bold text-foreground mb-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
             O que nossos clientes dizem
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
             Avaliações reais do Google e Facebook de clientes que confiaram na Teccell Premium
             para seus reparos Apple mais complexos.
           </p>
         </div>
 
-        <div className="relative">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <Card className="max-w-4xl w-full bg-card/50 backdrop-blur-sm border shadow-lg">
-              <CardContent className="p-8 sm:p-12">
-                <div className="flex flex-col items-center text-center space-y-6">
+        <div className="relative flex-1 min-h-0 max-h-full overflow-hidden">
+          <div className="flex items-center justify-center h-full px-2">
+            <Card className="max-w-3xl w-full bg-card/50 backdrop-blur-sm border shadow-lg">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex flex-col items-center text-center space-y-3 sm:space-y-4">
                   {/* Platform indicator */}
-                  <div className="flex items-center space-x-2 bg-muted/50 px-3 py-1.5 rounded-full">
-                    {getPlatformIcon(testimonials[currentIndex].platform)}
-                    <span className="text-sm font-medium text-muted-foreground">
-                      Avaliação do {getPlatformName(testimonials[currentIndex].platform)}
+                  <div className="flex items-center space-x-2 bg-muted/50 px-2 py-1 rounded-full">
+                    {getPlatformIcon(currentTestimonial.platform)}
+                    <span className="text-xs font-medium text-muted-foreground">
+                      Avaliação do {getPlatformName(currentTestimonial.platform)}
                     </span>
-                    {testimonials[currentIndex].verified && (
+                    {currentTestimonial.verified && (
                       <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border-green-200">
                         Verificada
                       </Badge>
                     )}
                   </div>
 
-                  <Quote className="w-12 h-12 text-accent/60" />
+                  <Quotes className="w-6 h-6 sm:w-8 sm:h-8 text-accent/60" />
                   
-                  <blockquote className="text-xl sm:text-2xl font-medium text-foreground leading-relaxed">
-                    "{testimonials[currentIndex].testimonial}"
+                  <blockquote className="text-base sm:text-lg md:text-xl font-medium text-foreground leading-relaxed line-clamp-4">
+                    "{currentTestimonial.testimonial}"
                   </blockquote>
 
                   <div className="flex items-center space-x-1">
-                    {renderStars(testimonials[currentIndex].rating)}
+                    {renderStars(currentTestimonial.rating)}
                   </div>
 
-                  <div className="flex items-center space-x-4">
-                    <Avatar className="w-16 h-16">
-                      <AvatarImage src={testimonials[currentIndex].avatar} />
+                  <div className="flex items-center space-x-3">
+                    <Avatar className="w-10 h-10 sm:w-12 sm:h-12">
+                      <AvatarImage src={currentTestimonial.avatar} />
                       <AvatarFallback className="bg-accent text-accent-foreground font-semibold">
-                        {getInitials(testimonials[currentIndex].name)}
+                        {getInitials(currentTestimonial.name)}
                       </AvatarFallback>
                     </Avatar>
                     
                     <div className="text-left">
-                      <h4 className="font-semibold text-foreground text-lg">
-                        {testimonials[currentIndex].name}
+                      <h4 className="font-semibold text-foreground text-sm sm:text-base">
+                        {currentTestimonial.name}
                       </h4>
-                      <div className="flex items-center space-x-1 text-muted-foreground mb-2">
+                      <div className="flex items-center space-x-1 text-muted-foreground mb-1">
                         <MapPin className="w-3 h-3" />
-                        <span className="text-sm">{testimonials[currentIndex].location}</span>
+                        <span className="text-xs">{currentTestimonial.location}</span>
                       </div>
-                      <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-1">
                         <Badge variant="secondary" className="text-xs flex items-center space-x-1">
                           <DeviceMobile className="w-3 h-3" />
-                          <span>{testimonials[currentIndex].device}</span>
+                          <span>{currentTestimonial.device}</span>
                         </Badge>
                         <Badge variant="outline" className="text-xs">
-                          {testimonials[currentIndex].repairType}
+                          {currentTestimonial.repairType}
                         </Badge>
-                        <div className="flex items-center space-x-1 text-xs text-muted-foreground">
-                          <Calendar className="w-3 h-3" />
-                          <span>{formatDate(testimonials[currentIndex].date)}</span>
-                        </div>
                       </div>
                     </div>
                   </div>
 
                   {/* View original review link */}
-                  {testimonials[currentIndex].reviewUrl && (
+                  {currentTestimonial.reviewUrl && (
                     <Button 
                       variant="outline" 
                       size="sm"
-                      className="mt-4"
-                      onClick={() => window.open(testimonials[currentIndex].reviewUrl, '_blank')}
+                      className="mt-2 text-xs"
+                      onClick={() => window.open(currentTestimonial.reviewUrl, '_blank')}
                     >
-                      Ver avaliação original no {getPlatformName(testimonials[currentIndex].platform)}
+                      Ver avaliação original
                     </Button>
                   )}
                 </div>
@@ -260,14 +262,14 @@ export function Testimonials() {
             </Card>
           </div>
 
-          {testimonials.length > 1 && (
+          {testimonials && testimonials.length > 1 && (
             <>
               <button
                 onClick={prevTestimonial}
                 className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-background/80 backdrop-blur-sm border shadow-lg hover:bg-background transition-colors"
                 aria-label="Depoimento anterior"
               >
-                <ChevronLeft className="w-5 h-5" />
+                <CaretLeft className="w-5 h-5" />
               </button>
               
               <button
@@ -275,14 +277,14 @@ export function Testimonials() {
                 className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-background/80 backdrop-blur-sm border shadow-lg hover:bg-background transition-colors"
                 aria-label="Próximo depoimento"
               >
-                <ChevronRight className="w-5 h-5" />
+                <CaretRight className="w-5 h-5" />
               </button>
             </>
           )}
         </div>
 
-        {testimonials.length > 1 && (
-          <div className="flex justify-center mt-8 space-x-2">
+        {testimonials && testimonials.length > 1 && (
+          <div className="flex justify-center mt-4 space-x-2 flex-shrink-0">
             {testimonials.map((_, index) => (
               <button
                 key={index}
@@ -297,82 +299,6 @@ export function Testimonials() {
             ))}
           </div>
         )}
-
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="text-center">
-            <div className="text-3xl font-bold text-accent mb-2">500+</div>
-            <p className="text-muted-foreground">Reparos Realizados</p>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-accent mb-2">98%</div>
-            <p className="text-muted-foreground">Taxa de Sucesso</p>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-accent mb-2">4.9★</div>
-            <p className="text-muted-foreground">Avaliação Média</p>
-          </div>
-        </div>
-
-        {/* Social Proof Summary */}
-        <div className="mt-16 bg-card/30 backdrop-blur-sm rounded-xl p-8 border">
-          <h3 className="text-2xl font-bold text-center text-foreground mb-8">
-            Avaliações nas Redes Sociais
-          </h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Google Reviews */}
-            <div className="flex items-center space-x-4 p-6 bg-background/50 rounded-lg border">
-              <div className="flex-shrink-0">
-                <GoogleLogo className="w-8 h-8 text-blue-500" weight="fill" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center space-x-2 mb-1">
-                  <span className="font-semibold text-foreground">Google Reviews</span>
-                  <Badge variant="secondary" className="text-xs">Verificadas</Badge>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="flex items-center space-x-1">
-                    {Array.from({ length: 5 }, (_, index) => (
-                      <Star key={index} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                    ))}
-                  </div>
-                  <span className="font-medium">4.9</span>
-                  <span className="text-muted-foreground">·</span>
-                  <span className="text-muted-foreground">127 avaliações</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Facebook Reviews */}
-            <div className="flex items-center space-x-4 p-6 bg-background/50 rounded-lg border">
-              <div className="flex-shrink-0">
-                <FacebookLogo className="w-8 h-8 text-blue-600" weight="fill" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center space-x-2 mb-1">
-                  <span className="font-semibold text-foreground">Facebook Reviews</span>
-                  <Badge variant="secondary" className="text-xs">Verificadas</Badge>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="flex items-center space-x-1">
-                    {Array.from({ length: 5 }, (_, index) => (
-                      <Star key={index} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                    ))}
-                  </div>
-                  <span className="font-medium">4.8</span>
-                  <span className="text-muted-foreground">·</span>
-                  <span className="text-muted-foreground">89 avaliações</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-center mt-6">
-            <p className="text-muted-foreground text-sm">
-              Todas as avaliações são verificadas e representam experiências reais de nossos clientes
-            </p>
-          </div>
-        </div>
       </div>
     </section>
   )

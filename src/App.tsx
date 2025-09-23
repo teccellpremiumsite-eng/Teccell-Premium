@@ -6,6 +6,7 @@ import { Services } from './components/Services'
 import { Gallery } from './components/Gallery'
 import { Testimonials } from './components/Testimonials'
 import { Contact } from './components/Contact'
+import { Footer } from './components/Footer'
 import { AdminPanel } from './components/AdminPanel'
 import { LoginForm } from './components/LoginForm'
 import { Toaster } from '@/components/ui/sonner'
@@ -75,6 +76,7 @@ function App() {
         <Testimonials />
         <Contact />
       </main>
+      <Footer />
       <Toaster />
     </div>
   )

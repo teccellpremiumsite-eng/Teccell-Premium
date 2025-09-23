@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Play, Images, VideoCamera, Wrench } from '@phosphor-icons/react'
+import { Play, Image, VideoCamera, Wrench } from 'phosphor-react'
 
 interface MediaItem {
   id: string
@@ -59,20 +59,16 @@ export function Gallery() {
   const categories = ['Todos', 'iPhone', 'iPad', 'MacBook']
   
   const filteredItems = selectedCategory === 'Todos' 
-    ? mediaItems 
-    : mediaItems.filter(item => item.category === selectedCategory)
+    ? (mediaItems || [])
+    : (mediaItems || []).filter(item => item.category === selectedCategory)
 
-  const images = filteredItems.filter(item => item.type === 'image')
-  const videos = filteredItems.filter(item => item.type === 'video')
+  const images = (filteredItems || []).filter(item => item.type === 'image')
+  const videos = (filteredItems || []).filter(item => item.type === 'video')
 
   return (
-    <section id="galeria" className="py-20">
-      <div className="container px-4 md:px-8">
+    <section id="galeria" className="min-h-screen py-20 flex items-center bg-gray-300 dark:bg-gray-600">
+      <div className="container px-4 md:px-8 w-full">
         <div className="text-center mb-16">
-          <Badge variant="outline" className="mb-4">
-            <Images size={16} className="mr-2" />
-            Nossa Galeria
-          </Badge>
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
             Trabalhos Realizados
           </h2>
@@ -85,7 +81,7 @@ export function Gallery() {
         <Tabs defaultValue="images" className="w-full">
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
             <TabsTrigger value="images" className="flex items-center gap-2">
-              <Images size={16} />
+              <Image size={16} />
               Fotos ({images.length})
             </TabsTrigger>
             <TabsTrigger value="videos" className="flex items-center gap-2">
@@ -124,7 +120,7 @@ export function Gallery() {
                           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300">
                             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                               <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
-                                <Images size={20} className="text-primary" />
+                                <Image size={20} className="text-primary" />
                               </div>
                             </div>
                           </div>
@@ -161,7 +157,7 @@ export function Gallery() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <Images size={48} className="mx-auto text-muted-foreground mb-4" />
+                <Image size={48} className="mx-auto text-muted-foreground mb-4" />
                 <p className="text-muted-foreground">Nenhuma foto encontrada para esta categoria.</p>
               </div>
             )}
@@ -220,19 +216,6 @@ export function Gallery() {
             )}
           </TabsContent>
         </Tabs>
-
-        <div className="mt-16 text-center">
-          <Card className="max-w-2xl mx-auto bg-gradient-to-r from-accent/5 to-primary/5 border-accent/20">
-            <CardContent className="p-8">
-              <Wrench size={48} className="mx-auto text-accent mb-4" />
-              <h3 className="text-2xl font-bold mb-4">Documentamos Cada Reparo</h3>
-              <p className="text-muted-foreground">
-                Registramos todo o processo de reparo com fotos e vídeos para garantir transparência 
-                e qualidade em cada serviço realizado.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
       </div>
     </section>
   )

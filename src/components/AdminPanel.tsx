@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -12,7 +12,7 @@ import { toast } from 'sonner'
 import { 
   X, 
   Plus, 
-  Images, 
+  Image, 
   VideoCamera, 
   Upload,
   Trash,
@@ -22,7 +22,7 @@ import {
   ChatCircle,
   GoogleLogo,
   FacebookLogo
-} from '@phosphor-icons/react'
+} from 'phosphor-react'
 
 interface MediaItem {
   id: string
@@ -96,7 +96,7 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
       category: newItem.category || 'iPhone'
     }
 
-    setMediaItems((current) => [...current, item])
+    setMediaItems((current) => [...(current || []), item])
     
     setNewItem({
       type: 'image',
@@ -131,7 +131,7 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
       reviewUrl: newTestimonial.reviewUrl
     }
 
-    setTestimonials((current) => [...current, testimonial])
+    setTestimonials((current) => [...(current || []), testimonial])
     
     setNewTestimonial({
       name: '',
@@ -151,12 +151,12 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
   }
 
   const handleDeleteItem = (id: string) => {
-    setMediaItems((current) => current.filter(item => item.id !== id))
+    setMediaItems((current) => (current || []).filter(item => item.id !== id))
     toast.success('Item removido com sucesso!')
   }
 
   const handleDeleteTestimonial = (id: string) => {
-    setTestimonials((current) => current.filter(testimonial => testimonial.id !== id))
+    setTestimonials((current) => (current || []).filter(testimonial => testimonial.id !== id))
     toast.success('Depoimento removido com sucesso!')
   }
 
@@ -175,7 +175,7 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
     ))
   }
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (event: any) => {
     const file = event.target.files?.[0]
     if (file) {
       // In a real application, you would upload the file to a server
@@ -186,8 +186,8 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
     }
   }
 
-  const images = mediaItems.filter(item => item.type === 'image')
-  const videos = mediaItems.filter(item => item.type === 'video')
+  const images = (mediaItems || []).filter(item => item.type === 'image')
+  const videos = (mediaItems || []).filter(item => item.type === 'video')
 
   return (
     <div className="fixed inset-0 bg-background z-50 overflow-auto">
@@ -213,11 +213,11 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-2xl font-bold">{mediaItems.length}</p>
+                  <p className="text-2xl font-bold">{mediaItems?.length || 0}</p>
                   <p className="text-muted-foreground text-sm">Total de Itens</p>
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-accent/10 text-accent flex items-center justify-center">
-                  <Images size={24} />
+                  <Image size={24} />
                 </div>
               </div>
             </CardContent>
@@ -231,7 +231,7 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
                   <p className="text-muted-foreground text-sm">Fotos</p>
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
-                  <Images size={24} />
+                  <Image size={24} />
                 </div>
               </div>
             </CardContent>
@@ -255,7 +255,7 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-2xl font-bold">{testimonials.length}</p>
+                  <p className="text-2xl font-bold">{testimonials?.length || 0}</p>
                   <p className="text-muted-foreground text-sm">Depoimentos</p>
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
@@ -376,20 +376,20 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
           <CardContent>
             <Tabs defaultValue="all">
               <TabsList>
-                <TabsTrigger value="all">Todos ({mediaItems.length})</TabsTrigger>
+                <TabsTrigger value="all">Todos ({mediaItems?.length || 0})</TabsTrigger>
                 <TabsTrigger value="images">Fotos ({images.length})</TabsTrigger>
                 <TabsTrigger value="videos">Vídeos ({videos.length})</TabsTrigger>
               </TabsList>
 
               <TabsContent value="all" className="space-y-4">
-                {mediaItems.length === 0 ? (
+                {(mediaItems?.length || 0) === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
-                    <Images size={48} className="mx-auto mb-4 opacity-50" />
+                    <Image size={48} className="mx-auto mb-4 opacity-50" />
                     <p>Nenhum item na galeria</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {mediaItems.map((item) => (
+                    {(mediaItems || []).map((item) => (
                       <Card key={item.id} className="overflow-hidden">
                         <div className="relative aspect-video">
                           {item.type === 'image' ? (
@@ -686,14 +686,14 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
             </div>
           </CardHeader>
           <CardContent>
-            {testimonials.length === 0 ? (
+            {(testimonials?.length || 0) === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <ChatCircle size={48} className="mx-auto mb-4 opacity-50" />
                 <p>Nenhum depoimento cadastrado</p>
               </div>
             ) : (
               <div className="space-y-4">
-                {testimonials.map((testimonial) => (
+                {(testimonials || []).map((testimonial) => (
                   <Card key={testimonial.id} className="p-4">
                     <div className="flex items-start space-x-4">
                       <Avatar className="w-12 h-12">
