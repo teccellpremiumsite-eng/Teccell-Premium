@@ -182,8 +182,10 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
       return
     }
 
-    if (!validateFileSize(file, 10)) {
-      toast.error('Arquivo muito grande. Máximo 10MB.')
+    // Definir limite baseado no tipo de arquivo
+    const maxSize = newItem.type === 'video' ? 60 : 10 // 60MB para vídeos, 10MB para imagens
+    if (!validateFileSize(file, maxSize)) {
+      toast.error(`Arquivo muito grande. Máximo ${maxSize}MB para ${newItem.type === 'video' ? 'vídeos' : 'imagens'}.`)
       return
     }
 
@@ -421,6 +423,9 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
                             {newItem.url && (
                               <p className="text-xs text-green-600">✓ Arquivo carregado</p>
                             )}
+                            <p className="text-xs text-muted-foreground">
+                              Limite: {newItem.type === 'video' ? '60MB para vídeos' : '10MB para imagens'}
+                            </p>
                             <Input
                               placeholder="Ou insira uma URL"
                               value={newItem.url || ''}
