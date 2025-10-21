@@ -1,4 +1,10 @@
 {
+  "regions": ["gru1"],
+  "functions": {
+    "src/pages/**/*.{js,ts}": {
+      "runtime": "@vercel/node@18"
+    }
+  },
   "rewrites": [
     {
       "source": "/(.*)",
@@ -20,6 +26,22 @@
         {
           "key": "Expires",
           "value": "0"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
         }
       ]
     },
@@ -41,5 +63,7 @@
         }
       ]
     }
-  ]
+  ],
+  "cleanUrls": true,
+  "trailingSlash": false
 }

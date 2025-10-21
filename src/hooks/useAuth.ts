@@ -27,18 +27,27 @@ export function useAuth() {
 
   const checkAuthStatus = async () => {
     try {
+      console.log('🔍 Auth Debug - Domain:', window.location.hostname)
+      console.log('🔍 Auth Debug - Local Storage available:', typeof Storage !== 'undefined')
+      
       // Verifica se é primeiro acesso
       const setupCompleted = localStorage.getItem('admin_setup_completed')
       const isLoggedIn = localStorage.getItem('admin_logged_in')
       const sessionExpiry = localStorage.getItem('admin_session_expiry')
 
+      console.log('🔍 Auth Debug - Setup completed:', setupCompleted)
+      console.log('🔍 Auth Debug - Is logged in:', isLoggedIn)
+      console.log('🔍 Auth Debug - Session expiry:', sessionExpiry)
+
       // Verifica se a sessão expirou
       if (sessionExpiry && new Date().getTime() > parseInt(sessionExpiry)) {
+        console.log('🔍 Auth Debug - Session expired, clearing')
         localStorage.removeItem('admin_logged_in')
         localStorage.removeItem('admin_session_expiry')
       }
 
       const isCurrentlyLoggedIn = localStorage.getItem('admin_logged_in') === 'true'
+      console.log('🔍 Auth Debug - Currently logged in:', isCurrentlyLoggedIn)
 
       setAuthState({
         user: null,
@@ -61,27 +70,39 @@ export function useAuth() {
 
   const login = (password: string): boolean => {
     try {
+      console.log('🔑 Login Debug - Attempting login on domain:', window.location.hostname)
+      console.log('🔑 Login Debug - Password length:', password.length)
+      
       const setupCompleted = localStorage.getItem('admin_setup_completed')
+      console.log('🔑 Login Debug - Setup completed:', setupCompleted)
       
       if (setupCompleted === 'true') {
         // Login com senha personalizada
         const storedPasswordHash = localStorage.getItem('admin_password_hash')
         const providedPasswordHash = btoa(password)
         
+        console.log('🔑 Login Debug - Has stored hash:', !!storedPasswordHash)
+        console.log('🔑 Login Debug - Provided hash:', providedPasswordHash)
+        
         if (storedPasswordHash === providedPasswordHash) {
           const expiryTime = new Date().getTime() + (24 * 60 * 60 * 1000) // 24 horas
           localStorage.setItem('admin_logged_in', 'true')
           localStorage.setItem('admin_session_expiry', expiryTime.toString())
           
+          console.log('🔑 Login Debug - Login successful (custom password)')
           setAuthState(prev => ({
             ...prev,
             isAuthenticated: true
           }))
           return true
+        } else {
+          console.log('🔑 Login Debug - Invalid custom password')
         }
       } else {
         // Primeiro acesso - verifica senha padrão
+        console.log('🔑 Login Debug - First time access, checking default password')
         if (password === DEFAULT_PASSWORD) {
+          console.log('🔑 Login Debug - Default password correct')
           // Marca como autenticado temporariamente para primeiro acesso
           setAuthState(prev => ({
             ...prev,
@@ -89,6 +110,8 @@ export function useAuth() {
             isAuthenticated: true
           }))
           return true
+        } else {
+          console.log('🔑 Login Debug - Invalid default password')
         }
       }
       
