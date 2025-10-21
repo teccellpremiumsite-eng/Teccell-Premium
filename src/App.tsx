@@ -15,12 +15,25 @@ import { Toaster } from '@/components/ui/sonner'
 function App() {
   const [showLogin, setShowLogin] = useState(false)
   const [showAdmin, setShowAdmin] = useState(false)
-  const { isAuthenticated, isFirstTimeAccess, login, logout, loading } = useAuth()
+  const { isAuthenticated, isFirstTimeAccess, login, logout, loading, resetToDefault } = useAuth()
 
   // Initialize cache busting on app load
   useEffect(() => {
     initCacheBusting()
-  }, [])
+    
+    // Adicionar função global para resetar via console
+    (window as any).resetAdminSystem = () => {
+      const confirmReset = confirm('⚠️ RESETAR SISTEMA ADMIN?\n\nIsso vai:\n- Apagar senha atual\n- Voltar para primeiro acesso\n- Permitir configurar nova senha\n\nDeseja continuar?')
+      if (confirmReset) {
+        resetToDefault()
+        setShowAdmin(false)
+        setShowLogin(false)
+        console.log('🎯 Sistema resetado! Digite no console: "window.location.reload()" para recarregar a página')
+      }
+    }
+    
+    console.log('🔧 Para resetar o sistema admin, digite no console: resetAdminSystem()')
+  }, [resetToDefault])
 
   // Verificar se deve mostrar admin automaticamente
   useEffect(() => {
@@ -53,6 +66,17 @@ function App() {
           setShowAdmin(true)
         } else {
           setShowLogin(true)
+        }
+      }
+      
+      // Atalho especial para resetar sistema: Ctrl+Shift+R
+      if (e.ctrlKey && e.shiftKey && e.key === 'R') {
+        e.preventDefault()
+        const confirmReset = confirm('⚠️ ATENÇÃO: Isso vai resetar o sistema para primeiro acesso. Deseja continuar?')
+        if (confirmReset) {
+          resetToDefault()
+          setShowAdmin(false)
+          setShowLogin(false)
         }
       }
     }

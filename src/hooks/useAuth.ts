@@ -101,6 +101,10 @@ export function useAuth() {
       } else {
         // Primeiro acesso - verifica senha padrão
         console.log('🔑 Login Debug - First time access, checking default password')
+        console.log('🔑 Login Debug - DEFAULT_PASSWORD:', DEFAULT_PASSWORD)
+        console.log('🔑 Login Debug - Provided password:', password)
+        console.log('🔑 Login Debug - Passwords match:', password === DEFAULT_PASSWORD)
+        
         if (password === DEFAULT_PASSWORD) {
           console.log('🔑 Login Debug - Default password correct')
           // Marca como autenticado temporariamente para primeiro acesso
@@ -158,6 +162,7 @@ export function useAuth() {
 
   const resetToDefault = () => {
     try {
+      console.log('🔄 Resetando sistema para primeiro acesso...')
       localStorage.removeItem('admin_setup_completed')
       localStorage.removeItem('admin_password_hash')
       localStorage.removeItem('admin_logged_in')
@@ -168,6 +173,9 @@ export function useAuth() {
         isAuthenticated: false,
         isFirstTimeAccess: true
       }))
+      
+      console.log('✅ Sistema resetado para primeiro acesso')
+      alert('Sistema resetado! Agora você pode configurar uma nova senha.')
     } catch (error) {
       console.error('Erro ao resetar para padrão:', error)
     }
