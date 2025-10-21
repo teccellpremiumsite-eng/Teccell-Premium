@@ -82,9 +82,11 @@ export function useAuth() {
       } else {
         // Primeiro acesso - verifica senha padrão
         if (password === DEFAULT_PASSWORD) {
+          // Marca como autenticado temporariamente para primeiro acesso
           setAuthState(prev => ({
             ...prev,
-            isFirstTimeAccess: true
+            isFirstTimeAccess: true,
+            isAuthenticated: true
           }))
           return true
         }

@@ -14,12 +14,21 @@ import { Toaster } from '@/components/ui/sonner'
 function App() {
   const [showLogin, setShowLogin] = useState(false)
   const [showAdmin, setShowAdmin] = useState(false)
-  const { isAuthenticated, isFirstTimeAccess, login, logout } = useAuth()
+  const { isAuthenticated, isFirstTimeAccess, login, logout, loading } = useAuth()
+
+  // Verificar se deve mostrar admin automaticamente
+  useEffect(() => {
+    if (isAuthenticated && !showLogin) {
+      // Se está autenticado e não está mostrando login, pode mostrar admin se solicitado
+      // Mas não abre automaticamente para não interferir na navegação
+    }
+  }, [isAuthenticated, showLogin])
 
   const handleLogin = (password: string): boolean => {
     const success = login(password)
-    if (success && !isFirstTimeAccess) {
+    if (success) {
       setShowLogin(false)
+      // Para primeiro acesso, o AdminPanel já gerencia a tela de setup
       setShowAdmin(true)
     }
     return success
@@ -45,6 +54,18 @@ function App() {
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
   }, [isAuthenticated])
+
+  // Mostrar loading enquanto verifica autenticação
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p>Carregando...</p>
+        </div>
+      </div>
+    )
+  }
 
   if (showLogin) {
     return (
