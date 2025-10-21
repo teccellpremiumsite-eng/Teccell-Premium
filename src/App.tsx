@@ -9,7 +9,6 @@ import { Footer } from './components/Footer'
 import { AdminPanel } from './components/AdminPanel'
 import { LoginForm } from './components/LoginForm'
 import { useAuth } from './hooks/useAuth'
-import { initCacheBusting } from './lib/cacheBusting'
 import { Toaster } from '@/components/ui/sonner'
 
 function App() {
@@ -17,9 +16,9 @@ function App() {
   const [showAdmin, setShowAdmin] = useState(false)
   const { isAuthenticated, isFirstTimeAccess, login, logout, loading, resetToDefault } = useAuth()
 
-  // Initialize cache busting on app load
+  // Initialize on app load
   useEffect(() => {
-    initCacheBusting()
+    // Cache busting removido para evitar erros
     
     // Adicionar função global para resetar via console
     (window as any).resetAdminSystem = () => {
