@@ -12,6 +12,7 @@ import { useAuth } from '../hooks/useAuth'
 import { useMediaItems } from '../hooks/useMediaItems'
 import { useTestimonials } from '../hooks/useTestimonials'
 import { uploadFile, deleteFile, validateFileType, validateFileSize, compressImage } from '../lib/upload'
+import { FirstTimeSetup } from './FirstTimeSetup'
 import { 
   X, 
   Plus, 
@@ -34,7 +35,15 @@ interface AdminPanelProps {
 }
 
 export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
-  const { user } = useAuth()
+  const { 
+    user, 
+    loading, 
+    isFirstTimeAccess, 
+    isAuthenticated, 
+    completeFirstTimeSetup,
+    logout 
+  } = useAuth()
+  
   const { 
     mediaItems, 
     images, 
@@ -219,6 +228,46 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
     ))
   }
 
+  // Handle first time setup
+  const handleFirstTimeSetup = (newPassword: string) => {
+    completeFirstTimeSetup(newPassword)
+    toast.success('Configuração inicial concluída com sucesso!')
+  }
+
+  const handleLogout = () => {
+    logout()
+    onLogout()
+    toast.info('Logout realizado com sucesso')
+  }
+
+  // Show first time setup if needed
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-background z-50 flex items-center justify-center">
+        <div className="flex items-center space-x-2">
+          <Spinner className="animate-spin" size={24} />
+          <span>Carregando...</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (isFirstTimeAccess && !isAuthenticated) {
+    return <FirstTimeSetup onSetupComplete={handleFirstTimeSetup} />
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="fixed inset-0 bg-background z-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Acesso Negado</h2>
+          <p className="text-muted-foreground mb-4">Você precisa estar autenticado para acessar o painel.</p>
+          <Button onClick={onClose}>Voltar</Button>
+        </div>
+      </div>
+    )
+  }
+
   // Verificar se está carregando dados
   if (mediaLoading || testimonialsLoading) {
     return (
@@ -240,7 +289,7 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
             <p className="text-muted-foreground">Gerencie a galeria de reparos</p>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={onLogout}>
+            <Button variant="outline" onClick={handleLogout}>
               <SignOut size={16} className="mr-2" />
               Sair
             </Button>

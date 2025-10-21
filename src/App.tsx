@@ -8,33 +8,25 @@ import { Contact } from './components/Contact'
 import { Footer } from './components/Footer'
 import { AdminPanel } from './components/AdminPanel'
 import { LoginForm } from './components/LoginForm'
+import { useAuth } from './hooks/useAuth'
 import { Toaster } from '@/components/ui/sonner'
 
 function App() {
-  const [isAdmin, setIsAdmin] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
   const [showAdmin, setShowAdmin] = useState(false)
+  const { isAuthenticated, isFirstTimeAccess, login, logout } = useAuth()
 
-  // Carregar estado do admin do localStorage
-  useEffect(() => {
-    const adminSession = localStorage.getItem('admin-session')
-    if (adminSession === 'true') {
-      setIsAdmin(true)
-    }
-  }, [])
-
-  const handleLogin = (success: boolean) => {
-    if (success) {
-      setIsAdmin(true)
-      localStorage.setItem('admin-session', 'true')
+  const handleLogin = (password: string): boolean => {
+    const success = login(password)
+    if (success && !isFirstTimeAccess) {
       setShowLogin(false)
       setShowAdmin(true)
     }
+    return success
   }
 
   const handleLogout = () => {
-    setIsAdmin(false)
-    localStorage.setItem('admin-session', 'false')
+    logout()
     setShowAdmin(false)
   }
 
@@ -42,7 +34,7 @@ function App() {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.shiftKey && e.key === 'A') {
         e.preventDefault()
-        if (isAdmin) {
+        if (isAuthenticated) {
           setShowAdmin(true)
         } else {
           setShowLogin(true)
@@ -52,7 +44,7 @@ function App() {
 
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [isAdmin])
+  }, [isAuthenticated])
 
   if (showLogin) {
     return (
@@ -77,7 +69,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header onAdminClick={() => isAdmin ? setShowAdmin(true) : setShowLogin(true)} />
+      <Header onAdminClick={() => isAuthenticated ? setShowAdmin(true) : setShowLogin(true)} />
       <main>
         <Hero />
         <Services />
