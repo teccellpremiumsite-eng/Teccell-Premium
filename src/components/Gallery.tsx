@@ -4,7 +4,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Play, Image, VideoCamera, Wrench } from 'phosphor-react'
+import { Play, Image, VideoCamera, Wrench, Spinner } from 'phosphor-react'
+import { useMediaItems } from '../hooks/useMediaItems'
 
 interface MediaItem {
   id: string
@@ -17,9 +18,14 @@ interface MediaItem {
 }
 
 export function Gallery() {
-  const [mediaItems] = useState<MediaItem[]>([
+  const { mediaItems, loading, error } = useMediaItems()
+  const [selectedCategory, setSelectedCategory] = useState<string>('Todos')
+  const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null)
+
+  // Fallback data em caso de erro ou dados vazios
+  const fallbackMediaItems: MediaItem[] = [
     {
-      id: '1',
+      id: 'fallback-1',
       type: 'image',
       url: 'https://images.unsplash.com/photo-1621768216002-5ac171876625?w=800&h=600&fit=crop',
       title: 'Reparo de Placa iPhone 13 Pro',
@@ -27,7 +33,7 @@ export function Gallery() {
       category: 'iPhone'
     },
     {
-      id: '2',
+      id: 'fallback-2',
       type: 'image', 
       url: 'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=800&h=600&fit=crop',
       title: 'Microsoldagem MacBook Pro',
@@ -35,7 +41,7 @@ export function Gallery() {
       category: 'MacBook'
     },
     {
-      id: '3',
+      id: 'fallback-3',
       type: 'video',
       url: 'https://www.w3schools.com/html/mov_bbb.mp4',
       title: 'Processo de Reparo iPad Pro',
@@ -43,26 +49,40 @@ export function Gallery() {
       category: 'iPad'
     },
     {
-      id: '4',
+      id: 'fallback-4',
       type: 'image',
       url: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=800&h=600&fit=crop',
       title: 'Dano por Líquido iPhone 12',
       description: 'Limpeza ultrassônica e restauração completa',
       category: 'iPhone'
     }
-  ])
+  ]
 
-  const [selectedCategory, setSelectedCategory] = useState<string>('Todos')
-  const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null)
+  // Usar dados do banco ou fallback
+  const displayItems = mediaItems.length > 0 ? mediaItems : fallbackMediaItems
 
   const categories = ['Todos', 'iPhone', 'iPad', 'MacBook']
   
   const filteredItems = selectedCategory === 'Todos' 
-    ? (mediaItems || [])
-    : (mediaItems || []).filter(item => item.category === selectedCategory)
+    ? displayItems
+    : displayItems.filter(item => item.category === selectedCategory)
 
-  const images = (filteredItems || []).filter(item => item.type === 'image')
-  const videos = (filteredItems || []).filter(item => item.type === 'video')
+  const displayImages = filteredItems.filter(item => item.type === 'image')
+  const displayVideos = filteredItems.filter(item => item.type === 'video')
+
+  // Loading state
+  if (loading) {
+    return (
+      <section id="galeria" className="min-h-screen py-20 flex items-center bg-gray-300 dark:bg-gray-600">
+        <div className="container px-4 md:px-8 w-full">
+          <div className="text-center">
+            <Spinner className="animate-spin w-8 h-8 mx-auto mb-4" />
+            <p>Carregando galeria...</p>
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section id="galeria" className="min-h-screen py-20 flex items-center bg-gray-300 dark:bg-gray-600">
@@ -75,17 +95,22 @@ export function Gallery() {
             Veja exemplos dos nossos reparos profissionais. Cada trabalho é documentado 
             com fotos e vídeos do processo.
           </p>
+          {mediaItems.length === 0 && (
+            <p className="text-sm text-muted-foreground mt-2">
+              Dados sendo carregados do banco...
+            </p>
+          )}
         </div>
 
         <Tabs defaultValue="images" className="w-full">
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
             <TabsTrigger value="images" className="flex items-center gap-2">
               <Image size={16} />
-              Fotos ({images.length})
+              Fotos ({displayImages.length})
             </TabsTrigger>
             <TabsTrigger value="videos" className="flex items-center gap-2">
               <VideoCamera size={16} />
-              Vídeos ({videos.length})
+              Vídeos ({displayVideos.length})
             </TabsTrigger>
           </TabsList>
 
@@ -104,9 +129,9 @@ export function Gallery() {
           </div>
 
           <TabsContent value="images" className="space-y-8">
-            {images.length > 0 ? (
+            {displayImages.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {images.map((item) => (
+                {displayImages.map((item) => (
                   <Dialog key={item.id}>
                     <DialogTrigger asChild>
                       <Card className="group cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden">
@@ -156,61 +181,53 @@ export function Gallery() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <Image size={48} className="mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">Nenhuma foto encontrada para esta categoria.</p>
+                <Image size={64} className="mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-lg font-semibold mb-2">Nenhuma imagem encontrada</h3>
+                <p className="text-muted-foreground">
+                  {selectedCategory === 'Todos' 
+                    ? 'Adicione imagens através do painel administrativo'
+                    : `Nenhuma imagem na categoria ${selectedCategory}`
+                  }
+                </p>
               </div>
             )}
           </TabsContent>
 
           <TabsContent value="videos" className="space-y-8">
-            {videos.length > 0 ? (
+            {displayVideos.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {videos.map((item) => (
-                  <Dialog key={item.id}>
-                    <DialogTrigger asChild>
-                      <Card className="group cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden">
-                        <div className="relative aspect-video overflow-hidden bg-muted">
-                          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-accent/20 to-primary/20">
-                            <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                              <Play size={24} className="text-primary ml-1" weight="fill" />
-                            </div>
-                          </div>
-                          <Badge className="absolute top-3 right-3">
-                            {item.category}
-                          </Badge>
-                        </div>
-                        <CardContent className="p-4">
-                          <h3 className="font-semibold mb-2 line-clamp-1">{item.title}</h3>
-                          <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
-                        </CardContent>
-                      </Card>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-4xl">
-                      <div className="space-y-4">
-                        <video
-                          controls
-                          className="w-full aspect-video rounded-lg"
-                          poster=""
-                        >
-                          <source src={item.url} type="video/mp4" />
-                          Seu navegador não suporta o elemento de vídeo.
-                        </video>
-                        <div>
-                          <div className="flex items-start justify-between mb-2">
-                            <h3 className="text-xl font-semibold">{item.title}</h3>
-                            <Badge>{item.category}</Badge>
-                          </div>
-                          <p className="text-muted-foreground">{item.description}</p>
-                        </div>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+                {displayVideos.map((item) => (
+                  <Card key={item.id} className="group overflow-hidden">
+                    <div className="relative aspect-video">
+                      <video
+                        src={item.url}
+                        controls
+                        className="w-full h-full object-cover"
+                        poster={(item as any).beforeImage}
+                      >
+                        Seu navegador não suporta vídeos.
+                      </video>
+                      <Badge className="absolute top-3 right-3">
+                        {item.category}
+                      </Badge>
+                    </div>
+                    <CardContent className="p-4">
+                      <h3 className="font-semibold mb-2">{item.title}</h3>
+                      <p className="text-sm text-muted-foreground">{item.description}</p>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             ) : (
               <div className="text-center py-12">
-                <VideoCamera size={48} className="mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">Nenhum vídeo encontrado para esta categoria.</p>
+                <VideoCamera size={64} className="mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-lg font-semibold mb-2">Nenhum vídeo encontrado</h3>
+                <p className="text-muted-foreground">
+                  {selectedCategory === 'Todos' 
+                    ? 'Adicione vídeos através do painel administrativo'
+                    : `Nenhum vídeo na categoria ${selectedCategory}`
+                  }
+                </p>
               </div>
             )}
           </TabsContent>

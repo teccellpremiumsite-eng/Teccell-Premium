@@ -4,6 +4,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Star, Quotes, CaretLeft, CaretRight, GoogleLogo, FacebookLogo, MapPin, DeviceMobile, Calendar } from 'phosphor-react'
+import { useTestimonials } from '@/hooks/useTestimonials'
 
 interface Testimonial {
   id: string
@@ -101,8 +102,34 @@ const defaultTestimonials: Testimonial[] = [
 ]
 
 export function Testimonials() {
-  const [testimonials] = useState<Testimonial[]>(defaultTestimonials)
+  const { testimonials: dbTestimonials, loading: testimonialsLoading } = useTestimonials()
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(defaultTestimonials)
   const [currentIndex, setCurrentIndex] = useState(0)
+
+  // Use testimonials from database or fallback to default
+  useEffect(() => {
+    if (!testimonialsLoading && dbTestimonials?.length > 0) {
+      // Convert database testimonials to component format
+      const formattedTestimonials = dbTestimonials.map(item => ({
+        id: item.id,
+        name: item.name,
+        avatar: (item as any).avatar_url,
+        location: item.location || '',
+        device: item.device,
+        rating: item.rating,
+        testimonial: item.testimonial,
+        repairType: item.repair_type || '',
+        date: item.date,
+        platform: (item.platform as 'google' | 'facebook' | 'local') || 'local',
+        verified: item.verified || false,
+        reviewUrl: item.review_url || undefined
+      }))
+      setTestimonials(formattedTestimonials)
+    } else if (!testimonialsLoading) {
+      // Use default testimonials as fallback
+      setTestimonials(defaultTestimonials)
+    }
+  }, [dbTestimonials, testimonialsLoading])
 
   useEffect(() => {
     if (!testimonials || testimonials.length === 0) return
