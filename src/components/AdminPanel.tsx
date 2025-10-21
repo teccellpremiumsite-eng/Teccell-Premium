@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -8,6 +8,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { toast } from 'sonner'
+import { useAuth } from '../hooks/useAuth'
+import { useMediaItems } from '../hooks/useMediaItems'
+import { useTestimonials } from '../hooks/useTestimonials'
+import { uploadFile, deleteFile, validateFileType, validateFileSize, compressImage } from '../lib/upload'
 import { 
   X, 
   Plus, 
@@ -20,32 +24,9 @@ import {
   Star,
   ChatCircle,
   GoogleLogo,
-  FacebookLogo
+  FacebookLogo,
+  Spinner
 } from 'phosphor-react'
-
-interface MediaItem {
-  id: string
-  type: 'image' | 'video'
-  url: string
-  title: string
-  description: string
-  category: string
-}
-
-interface Testimonial {
-  id: string
-  name: string
-  avatar?: string
-  location: string
-  device: string
-  rating: number
-  testimonial: string
-  repairType: string
-  date: string
-  platform: 'google' | 'facebook' | 'local'
-  verified?: boolean
-  reviewUrl?: string
-}
 
 interface AdminPanelProps {
   onClose: () => void
@@ -53,110 +34,174 @@ interface AdminPanelProps {
 }
 
 export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
-  const [mediaItems, setMediaItems] = useState<MediaItem[]>([])
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([])
-  const [newItem, setNewItem] = useState<Partial<MediaItem>>({
-    type: 'image',
+  const { user } = useAuth()
+  const { 
+    mediaItems, 
+    images, 
+    videos, 
+    loading: mediaLoading, 
+    addMediaItem, 
+    deleteMediaItem 
+  } = useMediaItems()
+  
+  const { 
+    testimonials, 
+    averageRating, 
+    loading: testimonialsLoading, 
+    addTestimonial, 
+    deleteTestimonial 
+  } = useTestimonials()
+
+  const [newItem, setNewItem] = useState({
+    type: 'image' as 'image' | 'video',
     title: '',
     description: '',
     category: 'iPhone',
     url: ''
   })
-  const [newTestimonial, setNewTestimonial] = useState<Partial<Testimonial>>({
+  
+  const [newTestimonial, setNewTestimonial] = useState({
     name: '',
     location: '',
     device: '',
     rating: 5,
     testimonial: '',
-    repairType: '',
+    repair_type: '',
     date: new Date().toISOString().split('T')[0],
-    platform: 'local',
+    platform: 'local' as 'google' | 'facebook' | 'local',
     verified: false,
-    reviewUrl: ''
+    review_url: '',
+    avatar_url: ''
   })
+
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isAddTestimonialOpen, setIsAddTestimonialOpen] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const categories = ['iPhone', 'iPad', 'MacBook']
 
-  const handleAddItem = () => {
+  const handleAddItem = async () => {
     if (!newItem.title || !newItem.url || !newItem.description) {
       toast.error('Por favor, preencha todos os campos obrigatórios.')
       return
     }
 
-    const item: MediaItem = {
-      id: Date.now().toString(),
-      type: newItem.type as 'image' | 'video',
-      url: newItem.url!,
-      title: newItem.title!,
-      description: newItem.description!,
-      category: newItem.category || 'iPhone'
-    }
-
-    setMediaItems((current) => [...(current || []), item])
-    
-    setNewItem({
-      type: 'image',
-      title: '',
-      description: '',
-      category: 'iPhone',
-      url: ''
+    const result = await addMediaItem({
+      type: newItem.type,
+      url: newItem.url,
+      title: newItem.title,
+      description: newItem.description,
+      category: newItem.category
     })
-    
-    setIsAddDialogOpen(false)
-    toast.success('Item adicionado com sucesso!')
+
+    if (result) {
+      setNewItem({
+        type: 'image',
+        title: '',
+        description: '',
+        category: 'iPhone',
+        url: ''
+      })
+      setIsAddDialogOpen(false)
+      toast.success('Item adicionado com sucesso!')
+    }
   }
 
-  const handleAddTestimonial = () => {
+  const handleAddTestimonial = async () => {
     if (!newTestimonial.name || !newTestimonial.testimonial || !newTestimonial.device) {
       toast.error('Por favor, preencha todos os campos obrigatórios.')
       return
     }
 
-    const testimonial: Testimonial = {
-      id: Date.now().toString(),
-      name: newTestimonial.name!,
-      location: newTestimonial.location || '',
-      device: newTestimonial.device!,
-      rating: newTestimonial.rating || 5,
-      testimonial: newTestimonial.testimonial!,
-      repairType: newTestimonial.repairType || '',
-      date: newTestimonial.date || new Date().toISOString().split('T')[0],
-      avatar: newTestimonial.avatar,
-      platform: newTestimonial.platform || 'local',
-      verified: newTestimonial.verified || false,
-      reviewUrl: newTestimonial.reviewUrl
+    const result = await addTestimonial({
+      name: newTestimonial.name,
+      location: newTestimonial.location || null,
+      device: newTestimonial.device,
+      rating: newTestimonial.rating,
+      testimonial: newTestimonial.testimonial,
+      repair_type: newTestimonial.repair_type || null,
+      date: newTestimonial.date,
+      avatar_url: newTestimonial.avatar_url || null,
+      platform: newTestimonial.platform,
+      verified: newTestimonial.verified,
+      review_url: newTestimonial.review_url || null
+    })
+
+    if (result) {
+      setNewTestimonial({
+        name: '',
+        location: '',
+        device: '',
+        rating: 5,
+        testimonial: '',
+        repair_type: '',
+        date: new Date().toISOString().split('T')[0],
+        platform: 'local',
+        verified: false,
+        review_url: '',
+        avatar_url: ''
+      })
+      setIsAddTestimonialOpen(false)
+      toast.success('Depoimento adicionado com sucesso!')
+    }
+  }
+
+  const handleDeleteItem = async (id: string, url: string) => {
+    if (await deleteMediaItem(id)) {
+      // Tentar deletar o arquivo do storage se for uma URL do Supabase
+      if (url.includes('supabase')) {
+        await deleteFile(url)
+      }
+      toast.success('Item removido com sucesso!')
+    }
+  }
+
+  const handleDeleteTestimonial = async (id: string) => {
+    if (await deleteTestimonial(id)) {
+      toast.success('Depoimento removido com sucesso!')
+    }
+  }
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    // Validações
+    if (!validateFileType(file, newItem.type)) {
+      toast.error(`Tipo de arquivo inválido para ${newItem.type}`)
+      return
     }
 
-    setTestimonials((current) => [...(current || []), testimonial])
-    
-    setNewTestimonial({
-      name: '',
-      location: '',
-      device: '',
-      rating: 5,
-      testimonial: '',
-      repairType: '',
-      date: new Date().toISOString().split('T')[0],
-      platform: 'local',
-      verified: false,
-      reviewUrl: ''
-    })
-    
-    setIsAddTestimonialOpen(false)
-    toast.success('Depoimento adicionado com sucesso!')
-  }
+    if (!validateFileSize(file, 10)) {
+      toast.error('Arquivo muito grande. Máximo 10MB.')
+      return
+    }
 
-  const handleDeleteItem = (id: string) => {
-    setMediaItems((current) => (current || []).filter(item => item.id !== id))
-    toast.success('Item removido com sucesso!')
-  }
+    setUploading(true)
+    try {
+      let fileToUpload = file
 
-  const handleDeleteTestimonial = (id: string) => {
-    setTestimonials((current) => (current || []).filter(testimonial => testimonial.id !== id))
-    toast.success('Depoimento removido com sucesso!')
+      // Comprimir imagem se necessário
+      if (newItem.type === 'image') {
+        fileToUpload = await compressImage(file)
+      }
+
+      // Upload para Supabase
+      const url = await uploadFile(fileToUpload)
+      
+      if (url) {
+        setNewItem(prev => ({ ...prev, url }))
+        toast.success('Arquivo carregado com sucesso!')
+      } else {
+        toast.error('Erro no upload do arquivo')
+      }
+    } catch (error) {
+      console.error('Erro no upload:', error)
+      toast.error('Erro no upload do arquivo')
+    } finally {
+      setUploading(false)
+    }
   }
 
   const getInitials = (name: string) => {
@@ -174,19 +219,31 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
     ))
   }
 
-  const handleFileUpload = (event: any) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      // In a real application, you would upload the file to a server
-      // For now, we'll create a placeholder URL
-      const fakeUrl = URL.createObjectURL(file)
-      setNewItem(prev => ({ ...prev, url: fakeUrl }))
-      toast.success('Arquivo carregado! (Preview local)')
-    }
+  // Verificar autenticação
+  if (!user) {
+    return (
+      <div className="fixed inset-0 bg-background z-50 flex items-center justify-center">
+        <Card className="p-8">
+          <CardContent>
+            <p className="text-center text-muted-foreground">
+              Você precisa estar logado para acessar o painel administrativo.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
-  const images = (mediaItems || []).filter(item => item.type === 'image')
-  const videos = (mediaItems || []).filter(item => item.type === 'video')
+  if (mediaLoading || testimonialsLoading) {
+    return (
+      <div className="fixed inset-0 bg-background z-50 flex items-center justify-center">
+        <div className="flex items-center space-x-2">
+          <Spinner className="animate-spin" size={24} />
+          <span>Carregando...</span>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="fixed inset-0 bg-background z-50 overflow-auto">
@@ -317,9 +374,14 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
                               variant="outline"
                               onClick={() => fileInputRef.current?.click()}
                               className="w-full"
+                              disabled={uploading}
                             >
-                              <Upload size={16} className="mr-2" />
-                              Escolher Arquivo
+                              {uploading ? (
+                                <Spinner size={16} className="mr-2 animate-spin" />
+                              ) : (
+                                <Upload size={16} className="mr-2" />
+                              )}
+                              {uploading ? 'Carregando...' : 'Escolher Arquivo'}
                             </Button>
                             {newItem.url && (
                               <p className="text-xs text-green-600">✓ Arquivo carregado</p>
@@ -441,7 +503,7 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
                             <Button 
                               variant="outline" 
                               size="sm"
-                              onClick={() => handleDeleteItem(item.id)}
+                              onClick={() => handleDeleteItem(item.id, item.url)}
                               className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
                             >
                               <Trash size={14} />
@@ -480,7 +542,7 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
                           <Button 
                             variant="outline" 
                             size="sm"
-                            onClick={() => handleDeleteItem(item.id)}
+                            onClick={() => handleDeleteItem(item.id, item.url)}
                             className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
                           >
                             <Trash size={14} />
@@ -514,7 +576,7 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
                           <Button 
                             variant="outline" 
                             size="sm"
-                            onClick={() => handleDeleteItem(item.id)}
+                            onClick={() => handleDeleteItem(item.id, item.url)}
                             className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
                           >
                             <Trash size={14} />
@@ -577,8 +639,8 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
                     <div>
                       <label className="text-sm font-medium mb-2 block">Tipo de Reparo</label>
                       <Input
-                        value={newTestimonial.repairType || ''}
-                        onChange={(e) => setNewTestimonial(prev => ({ ...prev, repairType: e.target.value }))}
+                        value={newTestimonial.repair_type || ''}
+                        onChange={(e) => setNewTestimonial(prev => ({ ...prev, repair_type: e.target.value }))}
                         placeholder="Ex: Reparo de Placa-Mãe"
                       />
                     </div>
@@ -611,8 +673,8 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
                     <div>
                       <label className="text-sm font-medium mb-2 block">URL do Avatar (opcional)</label>
                       <Input
-                        value={newTestimonial.avatar || ''}
-                        onChange={(e) => setNewTestimonial(prev => ({ ...prev, avatar: e.target.value }))}
+                        value={newTestimonial.avatar_url || ''}
+                        onChange={(e) => setNewTestimonial(prev => ({ ...prev, avatar_url: e.target.value }))}
                         placeholder="https://example.com/avatar.jpg"
                       />
                     </div>
@@ -660,8 +722,8 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
                       <div>
                         <label className="text-sm font-medium mb-2 block">URL da Avaliação</label>
                         <Input
-                          value={newTestimonial.reviewUrl || ''}
-                          onChange={(e) => setNewTestimonial(prev => ({ ...prev, reviewUrl: e.target.value }))}
+                          value={newTestimonial.review_url || ''}
+                          onChange={(e) => setNewTestimonial(prev => ({ ...prev, review_url: e.target.value }))}
                           placeholder="https://g.co/kgs/... ou https://facebook.com/..."
                         />
                       </div>
@@ -696,7 +758,7 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
                   <Card key={testimonial.id} className="p-4">
                     <div className="flex items-start space-x-4">
                       <Avatar className="w-12 h-12">
-                        <AvatarImage src={testimonial.avatar} />
+                        <AvatarImage src={testimonial.avatar_url || undefined} />
                         <AvatarFallback className="bg-accent text-accent-foreground">
                           {getInitials(testimonial.name)}
                         </AvatarFallback>
@@ -729,9 +791,9 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
                           <Badge variant="secondary" className="text-xs">
                             {testimonial.device}
                           </Badge>
-                          {testimonial.repairType && (
+                          {testimonial.repair_type && (
                             <Badge variant="outline" className="text-xs">
-                              {testimonial.repairType}
+                              {testimonial.repair_type}
                             </Badge>
                           )}
                           {testimonial.platform === 'google' && (
