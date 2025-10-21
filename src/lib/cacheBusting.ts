@@ -80,12 +80,7 @@ export const setUploadInProgress = (inProgress: boolean) => {
 
 // Auto cache clearing on page load
 export const initCacheBusting = () => {
-  // Clear cache when page loads (only once)
-  clearAllCaches()
-
-  // REMOVE AUTOMATIC CACHE CLEARING - it's causing constant refreshes
-  // Only clear cache manually when needed
-  
-  // Optional: Clear cache only on major app updates (could be triggered manually)
-  // No automatic intervals or event listeners for cache clearing during normal use
+  // COMPLETELY DISABLE CACHE CLEARING - it was causing constant page refreshes
+  // Cache will only be cleared manually if needed
+  console.log('Cache busting disabled to prevent refresh issues during uploads')
 }

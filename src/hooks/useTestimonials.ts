@@ -102,21 +102,9 @@ export function useTestimonials() {
   useEffect(() => {
     fetchTestimonials()
     
-    // Auto refresh every 5 minutes when component is visible and not uploading
-    const interval = setInterval(() => {
-      if (!document.hidden && !uploading) {
-        fetchTestimonials()
-      }
-    }, 5 * 60 * 1000) // Changed from 30 seconds to 5 minutes
-
-    // Remove visibility change refresh - it's too aggressive and causes constant updates
-    // Users can manually refresh if needed
-
-    return () => {
-      clearInterval(interval)
-      // Removed visibilitychange listener
-    }
-  }, [uploading])
+    // DISABLE ALL AUTO-REFRESH IN ADMIN PANEL - causes upload interruptions
+    // Users can manually refresh if needed or data will refresh when they add/delete items
+  }, [])
 
   // Filtros úteis
   const byRating = (rating: number) => testimonials.filter(t => t.rating === rating)

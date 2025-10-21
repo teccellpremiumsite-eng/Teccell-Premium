@@ -186,7 +186,7 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
     }
 
     // Definir limite baseado no tipo de arquivo (Supabase free tier limit: 50MB)
-    const maxSize = newItem.type === 'video' ? 45 : 10 // 45MB para vídeos, 10MB para imagens
+    const maxSize = newItem.type === 'video' ? 40 : 10 // 40MB para vídeos, 10MB para imagens
     if (!validateFileSize(file, maxSize)) {
       toast.error(`Arquivo muito grande. Máximo ${maxSize}MB para ${newItem.type === 'video' ? 'vídeos' : 'imagens'}.`)
       return
@@ -301,6 +301,15 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
             <p className="text-muted-foreground">Gerencie a galeria de reparos</p>
           </div>
           <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                window.location.reload()
+              }}
+              title="Atualizar dados"
+            >
+              🔄 Atualizar
+            </Button>
             <Button variant="outline" onClick={handleLogout}>
               <SignOut size={16} className="mr-2" />
               Sair
@@ -434,7 +443,7 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
                               <p className="text-xs text-green-600">✓ Arquivo carregado</p>
                             )}
                             <p className="text-xs text-muted-foreground">
-                              Limite: {newItem.type === 'video' ? '45MB para vídeos' : '10MB para imagens'}
+                              Limite: {newItem.type === 'video' ? '40MB para vídeos' : '10MB para imagens'}
                             </p>
                             <Input
                               placeholder="Ou insira uma URL"
