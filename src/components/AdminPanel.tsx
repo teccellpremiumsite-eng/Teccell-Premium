@@ -185,14 +185,13 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
       return
     }
 
-    // Definir limite baseado no tipo de arquivo
-    const maxSize = newItem.type === 'video' ? 70 : 10 // 70MB para vídeos, 10MB para imagens
+    // Definir limite baseado no tipo de arquivo (Supabase free tier limit: 50MB)
+    const maxSize = newItem.type === 'video' ? 45 : 10 // 45MB para vídeos, 10MB para imagens
     if (!validateFileSize(file, maxSize)) {
       toast.error(`Arquivo muito grande. Máximo ${maxSize}MB para ${newItem.type === 'video' ? 'vídeos' : 'imagens'}.`)
       return
     }
 
-    console.log('AdminPanel: Starting upload, pausing all auto-refresh')
     setUploading(true)
     setMediaUploading(true) // Pausa auto-refresh nos hooks
     setTestimonialsUploading(true)
@@ -219,7 +218,6 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
       console.error('Erro no upload:', error)
       toast.error('Erro no upload do arquivo')
     } finally {
-      console.log('AdminPanel: Upload finished, resuming all auto-refresh')
       setUploading(false)
       setMediaUploading(false) // Retoma auto-refresh nos hooks
       setTestimonialsUploading(false)
@@ -436,7 +434,7 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
                               <p className="text-xs text-green-600">✓ Arquivo carregado</p>
                             )}
                             <p className="text-xs text-muted-foreground">
-                              Limite: {newItem.type === 'video' ? '70MB para vídeos' : '10MB para imagens'}
+                              Limite: {newItem.type === 'video' ? '45MB para vídeos' : '10MB para imagens'}
                             </p>
                             <Input
                               placeholder="Ou insira uma URL"

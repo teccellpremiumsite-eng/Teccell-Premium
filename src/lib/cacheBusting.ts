@@ -83,25 +83,9 @@ export const initCacheBusting = () => {
   // Clear cache when page loads (only once)
   clearAllCaches()
 
-  // Add event listener for page visibility change (but not during uploads)
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && !uploadsInProgress) {
-      // Page became visible - clear cache only if not uploading
-      clearAllCaches()
-    }
-  })
-
-  // Add event listener for focus (but not during uploads)
-  window.addEventListener('focus', () => {
-    if (!uploadsInProgress) {
-      clearAllCaches()
-    }
-  })
-
-  // Periodically clear cache (every 10 minutes, and only if not uploading)
-  setInterval(() => {
-    if (!uploadsInProgress) {
-      clearAllCaches()
-    }
-  }, 10 * 60 * 1000) // Increased from 5 to 10 minutes
+  // REMOVE AUTOMATIC CACHE CLEARING - it's causing constant refreshes
+  // Only clear cache manually when needed
+  
+  // Optional: Clear cache only on major app updates (could be triggered manually)
+  // No automatic intervals or event listeners for cache clearing during normal use
 }
