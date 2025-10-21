@@ -1,6 +1,6 @@
 import { supabase } from './supabase'
 
-// Upload de arquivo para o Supabase Storage
+// Upload de arquivo para o Supabase Storage (sem autenticação obrigatória)
 export async function uploadFile(file: File, bucket: string = 'media'): Promise<string | null> {
   try {
     // Gerar nome único para o arquivo
@@ -8,7 +8,7 @@ export async function uploadFile(file: File, bucket: string = 'media'): Promise<
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
     const filePath = `uploads/${fileName}`
 
-    // Upload do arquivo
+    // Upload do arquivo (funciona sem autenticação se as políticas permitirem)
     const { data, error } = await supabase.storage
       .from(bucket)
       .upload(filePath, file, {

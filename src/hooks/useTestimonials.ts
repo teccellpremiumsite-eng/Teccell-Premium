@@ -35,13 +35,11 @@ export function useTestimonials() {
   // Adicionar novo depoimento
   const addTestimonial = async (testimonial: TestimonialInsert): Promise<Testimonial | null> => {
     try {
-      if (!user) throw new Error('Usuário não autenticado')
-
       const { data, error } = await supabase
         .from('testimonials')
         .insert({
           ...testimonial,
-          created_by: user.id
+          created_by: user?.id || null
         })
         .select()
         .single()

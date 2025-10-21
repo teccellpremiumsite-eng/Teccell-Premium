@@ -219,21 +219,7 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
     ))
   }
 
-  // Verificar autenticação
-  if (!user) {
-    return (
-      <div className="fixed inset-0 bg-background z-50 flex items-center justify-center">
-        <Card className="p-8">
-          <CardContent>
-            <p className="text-center text-muted-foreground">
-              Você precisa estar logado para acessar o painel administrativo.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
+  // Verificar se está carregando dados
   if (mediaLoading || testimonialsLoading) {
     return (
       <div className="fixed inset-0 bg-background z-50 flex items-center justify-center">

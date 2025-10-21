@@ -35,13 +35,11 @@ export function useMediaItems() {
   // Adicionar novo item
   const addMediaItem = async (item: MediaItemInsert): Promise<MediaItem | null> => {
     try {
-      if (!user) throw new Error('Usuário não autenticado')
-
       const { data, error } = await supabase
         .from('media_items')
         .insert({
           ...item,
-          created_by: user.id
+          created_by: user?.id || null
         })
         .select()
         .single()
