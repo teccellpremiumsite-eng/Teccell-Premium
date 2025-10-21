@@ -8,6 +8,7 @@ interface AuthState {
   loading: boolean
   isFirstTimeAccess: boolean
   isAuthenticated: boolean
+  needsPasswordSetup: boolean
 }
 
 export function useAuth() {
@@ -16,10 +17,11 @@ export function useAuth() {
     session: null,
     loading: true,
     isFirstTimeAccess: false,
-    isAuthenticated: false
+    isAuthenticated: false,
+    needsPasswordSetup: false
   })
 
-  const DEFAULT_PASSWORD = 'teccell2024'
+  const DEFAULT_PASSWORD = 'admin'
 
   useEffect(() => {
     checkAuthStatus()
@@ -54,7 +56,8 @@ export function useAuth() {
         session: null,
         loading: false,
         isFirstTimeAccess: setupCompleted !== 'true',
-        isAuthenticated: isCurrentlyLoggedIn
+        isAuthenticated: isCurrentlyLoggedIn,
+        needsPasswordSetup: setupCompleted !== 'true'
       })
     } catch (error) {
       console.error('Erro ao verificar status de autenticação:', error)
@@ -63,7 +66,8 @@ export function useAuth() {
         session: null,
         loading: false,
         isFirstTimeAccess: true,
-        isAuthenticated: false
+        isAuthenticated: false,
+        needsPasswordSetup: true
       })
     }
   }
@@ -89,7 +93,6 @@ export function useAuth() {
           localStorage.setItem('admin_logged_in', 'true')
           localStorage.setItem('admin_session_expiry', expiryTime.toString())
           
-          console.log('🔑 Login Debug - Login successful (custom password)')
           setAuthState(prev => ({
             ...prev,
             isAuthenticated: true
@@ -111,7 +114,8 @@ export function useAuth() {
           setAuthState(prev => ({
             ...prev,
             isFirstTimeAccess: true,
-            isAuthenticated: true
+            isAuthenticated: true,
+            needsPasswordSetup: true
           }))
           return true
         } else {
@@ -139,7 +143,8 @@ export function useAuth() {
       setAuthState(prev => ({
         ...prev,
         isAuthenticated: true,
-        isFirstTimeAccess: false
+        isFirstTimeAccess: false,
+        needsPasswordSetup: false
       }))
     } catch (error) {
       console.error('Erro ao completar configuração inicial:', error)
@@ -171,7 +176,8 @@ export function useAuth() {
       setAuthState(prev => ({
         ...prev,
         isAuthenticated: false,
-        isFirstTimeAccess: true
+        isFirstTimeAccess: true,
+        needsPasswordSetup: true
       }))
       
       console.log('✅ Sistema resetado para primeiro acesso')

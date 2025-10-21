@@ -8,13 +8,14 @@ import { Contact } from './components/Contact'
 import { Footer } from './components/Footer'
 import { AdminPanel } from './components/AdminPanel'
 import { LoginForm } from './components/LoginForm'
+import { InitialPasswordSetup } from './components/InitialPasswordSetup'
 import { useAuth } from './hooks/useAuth'
 import { Toaster } from '@/components/ui/sonner'
 
 function App() {
   const [showLogin, setShowLogin] = useState(false)
   const [showAdmin, setShowAdmin] = useState(false)
-  const { isAuthenticated, isFirstTimeAccess, login, logout, loading, resetToDefault } = useAuth()
+  const { isAuthenticated, isFirstTimeAccess, needsPasswordSetup, login, logout, loading, resetToDefault, completeFirstTimeSetup } = useAuth()
 
   // Initialize on app load
   useEffect(() => {
@@ -22,16 +23,18 @@ function App() {
     
     // Adicionar função global para resetar via console
     (window as any).resetAdminSystem = () => {
-      const confirmReset = confirm('⚠️ RESETAR SISTEMA ADMIN?\n\nIsso vai:\n- Apagar senha atual\n- Voltar para primeiro acesso\n- Permitir configurar nova senha\n\nDeseja continuar?')
+      const confirmReset = confirm('⚠️ RESETAR SISTEMA ADMIN?\n\nIsso vai:\n- Apagar senha atual\n- Voltar para primeiro acesso\n- Permitir configurar nova senha\n- Senha padrão será: admin\n\nDeseja continuar?')
       if (confirmReset) {
         resetToDefault()
         setShowAdmin(false)
         setShowLogin(false)
-        console.log('🎯 Sistema resetado! Digite no console: "window.location.reload()" para recarregar a página')
+        console.log('🎯 Sistema resetado!')
+        console.log('📋 Para acessar:\n1. Pressione Ctrl+Shift+A\n2. Digite: admin\n3. Configure nova senha')
       }
     }
     
-    console.log('🔧 Para resetar o sistema admin, digite no console: resetAdminSystem()')
+    console.log('🔧 Para resetar: resetAdminSystem() | Para acessar: Ctrl+Shift+A')
+    console.log('📋 Senha padrão inicial: admin')
   }, [resetToDefault])
 
   // Verificar se deve mostrar admin automaticamente
@@ -46,10 +49,17 @@ function App() {
     const success = login(password)
     if (success) {
       setShowLogin(false)
-      // Para primeiro acesso, o AdminPanel já gerencia a tela de setup
-      setShowAdmin(true)
+      // Se precisa configurar senha, não abre admin ainda
+      if (!needsPasswordSetup) {
+        setShowAdmin(true)
+      }
     }
     return success
+  }
+
+  const handlePasswordSetup = (newPassword: string) => {
+    completeFirstTimeSetup(newPassword)
+    setShowAdmin(true)
   }
 
   const handleLogout = () => {
@@ -71,7 +81,7 @@ function App() {
       // Atalho especial para resetar sistema: Ctrl+Shift+R
       if (e.ctrlKey && e.shiftKey && e.key === 'R') {
         e.preventDefault()
-        const confirmReset = confirm('⚠️ ATENÇÃO: Isso vai resetar o sistema para primeiro acesso. Deseja continuar?')
+        const confirmReset = confirm('⚠️ ATENÇÃO: Isso vai resetar o sistema para primeiro acesso.\n\nSenha padrão será: admin\n\nDeseja continuar?')
         if (confirmReset) {
           resetToDefault()
           setShowAdmin(false)
@@ -93,6 +103,22 @@ function App() {
           <p>Carregando...</p>
         </div>
       </div>
+    )
+  }
+
+  // Mostrar configuração de senha se for primeiro acesso e está autenticado
+  if (isAuthenticated && needsPasswordSetup) {
+    return (
+      <>
+        <InitialPasswordSetup 
+          onSetupComplete={handlePasswordSetup}
+          onCancel={() => {
+            logout()
+            setShowLogin(false)
+          }}
+        />
+        <Toaster />
+      </>
     )
   }
 
