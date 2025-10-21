@@ -1,23 +1,79 @@
-# ✨ Welcome to Your Spark Template!
-You've just launched your brand-new Spark Template Codespace — everything’s fired up and ready for you to explore, build, and create with Spark!
+# ✨ Teccell Premium Application
 
-This template is your blank canvas. It comes with a minimal setup to help you get started quickly with Spark development.
+Welcome to Teccell Premium! This is a modern React application built with Vite, TypeScript, and integrated with Supabase for backend functionality.
 
-🚀 What's Inside?
-- A clean, minimal Spark environment
-- Pre-configured for local development
-- Ready to scale with your ideas
-  
-🧠 What Can You Do?
+## 🚀 What's Inside?
 
-Right now, this is just a starting point — the perfect place to begin building and testing your Spark applications.
+- **React 19** with TypeScript
+- **Vite** for fast development and building
+- **TailwindCSS** for styling
+- **Supabase** for authentication and database
+- **Radix UI** components
+- **Framer Motion** for animations
+- **D3.js & Recharts** for data visualization
 
-🧹 Just Exploring?
-No problem! If you were just checking things out and don’t need to keep this code:
+## 🛠️ Setup
 
-- Simply delete your Spark.
-- Everything will be cleaned up — no traces left behind.
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/teccellpremiumsite-eng/Teccell-Premium.git
+   cd Teccell-Premium
+   ```
 
-📄 License For Spark Template Resources 
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Configure environment variables:**
+   ```bash
+   cp .env.example .env
+   ```
+   Then edit `.env` with your Supabase credentials:
+   ```
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+
+4. **Start development server:**
+   ```bash
+   npm run dev
+   ```
+
+## 🗄️ Supabase Configuration
+
+The application is pre-configured with Supabase for:
+- **Authentication** (Sign up, Sign in, Sign out)
+- **Database** operations
+- **Real-time** subscriptions
+
+### Usage Examples:
+
+```typescript
+// Import the configured client
+import { supabase } from './src/lib/supabase'
+
+// Use the auth hook
+import { useAuth } from './src/hooks/useAuth'
+
+// In your component
+const { user, signIn, signOut } = useAuth()
+```
+
+## 📦 Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+
+## 🌐 Deployment
+
+This project is configured for easy deployment on Vercel:
+1. Connect your GitHub repository to Vercel
+2. Add environment variables in Vercel dashboard
+3. Deploy!
+
+## 📄 License
 
 The Spark Template files and resources from GitHub are licensed under the terms of the MIT license, Copyright GitHub, Inc.
