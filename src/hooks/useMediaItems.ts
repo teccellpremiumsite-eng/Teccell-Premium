@@ -12,6 +12,7 @@ export function useMediaItems() {
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
   const { user } = useAuth()
 
   // Carregar itens da galeria
@@ -103,16 +104,16 @@ export function useMediaItems() {
   useEffect(() => {
     fetchMediaItems()
     
-    // Auto refresh every 30 seconds when component is visible
+    // Auto refresh every 30 seconds when component is visible and not uploading
     const interval = setInterval(() => {
-      if (!document.hidden) {
+      if (!document.hidden && !uploading) {
         fetchMediaItems()
       }
     }, 30000)
 
-    // Refresh when page becomes visible
+    // Refresh when page becomes visible (but not during upload)
     const handleVisibilityChange = () => {
-      if (!document.hidden) {
+      if (!document.hidden && !uploading) {
         fetchMediaItems()
       }
     }
@@ -123,7 +124,7 @@ export function useMediaItems() {
       clearInterval(interval)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
-  }, [])
+  }, [uploading])
 
   // Filtros úteis
   const images = mediaItems.filter(item => item.type === 'image')
@@ -137,6 +138,8 @@ export function useMediaItems() {
     byCategory,
     loading,
     error,
+    uploading,
+    setUploading,
     addMediaItem,
     updateMediaItem,
     deleteMediaItem,

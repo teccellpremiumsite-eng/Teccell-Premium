@@ -12,6 +12,7 @@ export function useTestimonials() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
   const { user } = useAuth()
 
   // Carregar depoimentos
@@ -101,16 +102,16 @@ export function useTestimonials() {
   useEffect(() => {
     fetchTestimonials()
     
-    // Auto refresh every 30 seconds when component is visible
+    // Auto refresh every 30 seconds when component is visible and not uploading
     const interval = setInterval(() => {
-      if (!document.hidden) {
+      if (!document.hidden && !uploading) {
         fetchTestimonials()
       }
     }, 30000)
 
-    // Refresh when page becomes visible
+    // Refresh when page becomes visible (but not during upload)
     const handleVisibilityChange = () => {
-      if (!document.hidden) {
+      if (!document.hidden && !uploading) {
         fetchTestimonials()
       }
     }
@@ -121,7 +122,7 @@ export function useTestimonials() {
       clearInterval(interval)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
-  }, [])
+  }, [uploading])
 
   // Filtros úteis
   const byRating = (rating: number) => testimonials.filter(t => t.rating === rating)
@@ -140,6 +141,8 @@ export function useTestimonials() {
     averageRating,
     loading,
     error,
+    uploading,
+    setUploading,
     addTestimonial,
     updateTestimonial,
     deleteTestimonial,

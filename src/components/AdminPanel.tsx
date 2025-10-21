@@ -49,6 +49,7 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
     images, 
     videos, 
     loading: mediaLoading, 
+    setUploading: setMediaUploading,
     addMediaItem, 
     deleteMediaItem 
   } = useMediaItems()
@@ -57,6 +58,7 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
     testimonials, 
     averageRating, 
     loading: testimonialsLoading, 
+    setUploading: setTestimonialsUploading,
     addTestimonial, 
     deleteTestimonial 
   } = useTestimonials()
@@ -183,13 +185,16 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
     }
 
     // Definir limite baseado no tipo de arquivo
-    const maxSize = newItem.type === 'video' ? 60 : 10 // 60MB para vídeos, 10MB para imagens
+    const maxSize = newItem.type === 'video' ? 70 : 10 // 70MB para vídeos, 10MB para imagens
     if (!validateFileSize(file, maxSize)) {
       toast.error(`Arquivo muito grande. Máximo ${maxSize}MB para ${newItem.type === 'video' ? 'vídeos' : 'imagens'}.`)
       return
     }
 
     setUploading(true)
+    setMediaUploading(true) // Pausa auto-refresh nos hooks
+    setTestimonialsUploading(true)
+    
     try {
       let fileToUpload = file
 
@@ -212,6 +217,8 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
       toast.error('Erro no upload do arquivo')
     } finally {
       setUploading(false)
+      setMediaUploading(false) // Retoma auto-refresh nos hooks
+      setTestimonialsUploading(false)
     }
   }
 
@@ -424,7 +431,7 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
                               <p className="text-xs text-green-600">✓ Arquivo carregado</p>
                             )}
                             <p className="text-xs text-muted-foreground">
-                              Limite: {newItem.type === 'video' ? '60MB para vídeos' : '10MB para imagens'}
+                              Limite: {newItem.type === 'video' ? '70MB para vídeos' : '10MB para imagens'}
                             </p>
                             <Input
                               placeholder="Ou insira uma URL"
