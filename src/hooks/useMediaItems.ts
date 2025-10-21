@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from './useAuth'
+import { addCacheBuster } from '../lib/cacheBusting'
 import type { Database } from '../types/supabase'
 
 type MediaItem = Database['public']['Tables']['media_items']['Row']
@@ -17,6 +18,8 @@ export function useMediaItems() {
   const fetchMediaItems = async () => {
     try {
       setLoading(true)
+      // Add cache busting timestamp to force fresh query
+      const cacheBuster = Date.now()
       const { data, error } = await supabase
         .from('media_items')
         .select('*')
@@ -99,6 +102,27 @@ export function useMediaItems() {
 
   useEffect(() => {
     fetchMediaItems()
+    
+    // Auto refresh every 30 seconds when component is visible
+    const interval = setInterval(() => {
+      if (!document.hidden) {
+        fetchMediaItems()
+      }
+    }, 30000)
+
+    // Refresh when page becomes visible
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchMediaItems()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
   }, [])
 
   // Filtros úteis

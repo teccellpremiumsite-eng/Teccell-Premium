@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from './useAuth'
+import { addCacheBuster } from '../lib/cacheBusting'
 import type { Database } from '../types/supabase'
 
 type Testimonial = Database['public']['Tables']['testimonials']['Row']
@@ -99,6 +100,27 @@ export function useTestimonials() {
 
   useEffect(() => {
     fetchTestimonials()
+    
+    // Auto refresh every 30 seconds when component is visible
+    const interval = setInterval(() => {
+      if (!document.hidden) {
+        fetchTestimonials()
+      }
+    }, 30000)
+
+    // Refresh when page becomes visible
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchTestimonials()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
   }, [])
 
   // Filtros úteis

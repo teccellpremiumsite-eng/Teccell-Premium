@@ -9,12 +9,18 @@ import { Footer } from './components/Footer'
 import { AdminPanel } from './components/AdminPanel'
 import { LoginForm } from './components/LoginForm'
 import { useAuth } from './hooks/useAuth'
+import { initCacheBusting } from './lib/cacheBusting'
 import { Toaster } from '@/components/ui/sonner'
 
 function App() {
   const [showLogin, setShowLogin] = useState(false)
   const [showAdmin, setShowAdmin] = useState(false)
   const { isAuthenticated, isFirstTimeAccess, login, logout, loading } = useAuth()
+
+  // Initialize cache busting on app load
+  useEffect(() => {
+    initCacheBusting()
+  }, [])
 
   // Verificar se deve mostrar admin automaticamente
   useEffect(() => {
