@@ -105,14 +105,20 @@ export function useTestimonials() {
     // Auto refresh every 30 seconds when component is visible and not uploading
     const interval = setInterval(() => {
       if (!document.hidden && !uploading) {
+        console.log('Testimonials: Auto-refresh triggered')
         fetchTestimonials()
+      } else {
+        console.log('Testimonials: Auto-refresh skipped (uploading:', uploading, 'hidden:', document.hidden, ')')
       }
     }, 30000)
 
     // Refresh when page becomes visible (but not during upload)
     const handleVisibilityChange = () => {
       if (!document.hidden && !uploading) {
+        console.log('Testimonials: Visibility change refresh triggered')
         fetchTestimonials()
+      } else {
+        console.log('Testimonials: Visibility change refresh skipped (uploading:', uploading, ')')
       }
     }
 

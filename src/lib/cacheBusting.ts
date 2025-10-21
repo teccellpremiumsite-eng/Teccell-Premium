@@ -70,26 +70,38 @@ export const forceReload = () => {
   })
 }
 
+// State to track if uploads are in progress
+let uploadsInProgress = false
+
+// Function to set upload state
+export const setUploadInProgress = (inProgress: boolean) => {
+  uploadsInProgress = inProgress
+}
+
 // Auto cache clearing on page load
 export const initCacheBusting = () => {
-  // Clear cache when page loads
+  // Clear cache when page loads (only once)
   clearAllCaches()
 
-  // Add event listener for page visibility change
+  // Add event listener for page visibility change (but not during uploads)
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) {
-      // Page became visible - clear cache
+    if (!document.hidden && !uploadsInProgress) {
+      // Page became visible - clear cache only if not uploading
       clearAllCaches()
     }
   })
 
-  // Add event listener for focus (when user returns to tab)
+  // Add event listener for focus (but not during uploads)
   window.addEventListener('focus', () => {
-    clearAllCaches()
+    if (!uploadsInProgress) {
+      clearAllCaches()
+    }
   })
 
-  // Periodically clear cache (every 5 minutes)
+  // Periodically clear cache (every 10 minutes, and only if not uploading)
   setInterval(() => {
-    clearAllCaches()
-  }, 5 * 60 * 1000)
+    if (!uploadsInProgress) {
+      clearAllCaches()
+    }
+  }, 10 * 60 * 1000) // Increased from 5 to 10 minutes
 }

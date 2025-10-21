@@ -12,6 +12,7 @@ import { useAuth } from '../hooks/useAuth'
 import { useMediaItems } from '../hooks/useMediaItems'
 import { useTestimonials } from '../hooks/useTestimonials'
 import { uploadFile, deleteFile, validateFileType, validateFileSize, compressImage } from '../lib/upload'
+import { setUploadInProgress } from '../lib/cacheBusting'
 import { FirstTimeSetup } from './FirstTimeSetup'
 import { 
   X, 
@@ -191,9 +192,11 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
       return
     }
 
+    console.log('AdminPanel: Starting upload, pausing all auto-refresh')
     setUploading(true)
     setMediaUploading(true) // Pausa auto-refresh nos hooks
     setTestimonialsUploading(true)
+    setUploadInProgress(true) // Pausa cache busting
     
     try {
       let fileToUpload = file
@@ -216,9 +219,11 @@ export function AdminPanel({ onClose, onLogout }: AdminPanelProps) {
       console.error('Erro no upload:', error)
       toast.error('Erro no upload do arquivo')
     } finally {
+      console.log('AdminPanel: Upload finished, resuming all auto-refresh')
       setUploading(false)
       setMediaUploading(false) // Retoma auto-refresh nos hooks
       setTestimonialsUploading(false)
+      setUploadInProgress(false) // Retoma cache busting
     }
   }
 
