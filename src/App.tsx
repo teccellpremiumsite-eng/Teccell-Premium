@@ -6,7 +6,7 @@ import { Gallery } from './components/Gallery'
 import { Testimonials } from './components/Testimonials'
 import { Contact } from './components/Contact'
 import { Footer } from './components/Footer'
-import { AdminPanel } from './components/AdminPanel'
+import { AdminPanelSimple } from './components/AdminPanelSimple'
 import { LoginForm } from './components/LoginForm'
 import { InitialPasswordSetup } from './components/InitialPasswordSetup'
 import { useAuth } from './hooks/useAuth'
@@ -137,7 +137,7 @@ function App() {
   if (showAdmin) {
     return (
       <>
-        <AdminPanel onClose={() => setShowAdmin(false)} onLogout={handleLogout} />
+        <AdminPanelSimple onClose={() => setShowAdmin(false)} onLogout={handleLogout} />
         <Toaster />
       </>
     )
