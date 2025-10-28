@@ -75,6 +75,19 @@ export function useSupabaseAuth() {
 
   const checkIfAdmin = async (user: User) => {
     try {
+      // Verificar se o usuário tem email
+      if (!user.email) {
+        console.warn('Usuário sem email')
+        setAuthState({
+          user,
+          session: null,
+          loading: false,
+          isAuthenticated: true,
+          isAdmin: false
+        })
+        return
+      }
+
       // Verificar se o usuário está na tabela admin_users
       const { data, error } = await supabase
         .from('admin_users')
