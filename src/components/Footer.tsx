@@ -135,13 +135,13 @@ export function Footer() {
               <p className="text-xs text-muted-foreground">
                 Desenvolvido por{' '}
                 <a 
-                  href="https://crmvsystem.com/" 
+                  href="https://gruporaval.com.br/" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="font-semibold text-accent hover:text-primary transition-colors inline-flex items-center gap-1"
                 >
                   <Globe size={14} />
-                  crmvsystem.com
+                  gruporaval.com.br
                 </a>
               </p>
             </div>
