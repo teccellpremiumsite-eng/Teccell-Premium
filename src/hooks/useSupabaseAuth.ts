@@ -153,7 +153,7 @@ export function useSupabaseAuth() {
         .single()
 
       if (adminError || !adminData) {
-        await supabase.auth.signOut()
+        // Não fazer signOut aqui - apenas retornar erro
         return { success: false, error: 'Acesso não autorizado. Apenas administradores podem fazer login.' }
       }
 
