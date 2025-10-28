@@ -22,46 +22,17 @@ export function Gallery() {
   const [selectedCategory, setSelectedCategory] = useState<string>('Todos')
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null)
 
-  // Fallback data em caso de erro ou dados vazios
-  const fallbackMediaItems: MediaItem[] = [
-    {
-      id: 'fallback-1',
-      type: 'image',
-      url: 'https://images.unsplash.com/photo-1621768216002-5ac171876625?w=800&h=600&fit=crop',
-      title: 'Reparo de Placa iPhone 13 Pro',
-      description: 'Problema resolvido: Face ID não funcionando após queda',
-      category: 'iPhone'
-    },
-    {
-      id: 'fallback-2',
-      type: 'image', 
-      url: 'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=800&h=600&fit=crop',
-      title: 'Microsoldagem MacBook Pro',
-      description: 'Substituição de IC de carregamento USB-C',
-      category: 'MacBook'
-    },
-    {
-      id: 'fallback-3',
-      type: 'video',
-      url: 'https://www.w3schools.com/html/mov_bbb.mp4',
-      title: 'Processo de Reparo iPad Pro',
-      description: 'Demonstração completa do processo de reparo',
-      category: 'iPad'
-    },
-    {
-      id: 'fallback-4',
-      type: 'image',
-      url: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=800&h=600&fit=crop',
-      title: 'Dano por Líquido iPhone 12',
-      description: 'Limpeza ultrassônica e restauração completa',
-      category: 'iPhone'
-    }
-  ]
+  // Debug: ver o que está vindo do banco
+  useEffect(() => {
+    console.log('🎨 Gallery - mediaItems do banco:', mediaItems)
+    console.log('🎨 Gallery - loading:', loading)
+    console.log('🎨 Gallery - error:', error)
+  }, [mediaItems, loading, error])
 
-  // Usar dados do banco ou fallback
-  const displayItems = mediaItems.length > 0 ? mediaItems : fallbackMediaItems
+  // Usar APENAS dados do banco (sem fallback)
+  const displayItems = mediaItems
 
-  const categories = ['Todos', 'iPhone', 'iPad', 'MacBook']
+  const categories = ['Todos', ...Array.from(new Set(mediaItems.map(item => item.category).filter(Boolean)))]
   
   const filteredItems = selectedCategory === 'Todos' 
     ? displayItems

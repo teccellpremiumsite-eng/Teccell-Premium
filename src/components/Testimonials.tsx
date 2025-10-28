@@ -103,10 +103,16 @@ const defaultTestimonials: Testimonial[] = [
 
 export function Testimonials() {
   const { testimonials: dbTestimonials, loading: testimonialsLoading } = useTestimonials()
-  const [testimonials, setTestimonials] = useState<Testimonial[]>(defaultTestimonials)
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
 
-  // Use testimonials from database or fallback to default
+  // Debug: ver o que está vindo do banco
+  useEffect(() => {
+    console.log('💬 Testimonials - dbTestimonials do banco:', dbTestimonials)
+    console.log('💬 Testimonials - loading:', testimonialsLoading)
+  }, [dbTestimonials, testimonialsLoading])
+
+  // Use APENAS testimonials do banco (sem fallback)
   useEffect(() => {
     if (!testimonialsLoading && dbTestimonials?.length > 0) {
       // Convert database testimonials to component format
@@ -126,8 +132,8 @@ export function Testimonials() {
       }))
       setTestimonials(formattedTestimonials)
     } else if (!testimonialsLoading) {
-      // Use default testimonials as fallback
-      setTestimonials(defaultTestimonials)
+      // Sem dados no banco = array vazio (não usa fallback)
+      setTestimonials([])
     }
   }, [dbTestimonials, testimonialsLoading])
 
