@@ -20,16 +20,16 @@ export function useSupabaseAuth() {
   })
 
   useEffect(() => {
-    // Timeout de segurança: se após 10 segundos ainda estiver loading, force false
+    // Timeout de segurança REDUZIDO: 3 segundos
     const safetyTimeout = setTimeout(() => {
       setAuthState(prev => {
         if (prev.loading) {
-          console.warn('⚠️ Timeout de autenticação - forçando loading = false')
-          return { ...prev, loading: false }
+          console.warn('⚠️ Timeout de autenticação (3s) - forçando loading = false')
+          return { ...prev, loading: false, isAdmin: false, isAuthenticated: false }
         }
         return prev
       })
-    }, 10000)
+    }, 3000)
 
     // Verificar sessão atual
     checkSession()
@@ -37,7 +37,7 @@ export function useSupabaseAuth() {
     // Listener para mudanças de autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
-        console.log('🔐 Auth state changed:', _event)
+        console.log('🔐 Auth state changed:', _event, session?.user?.email || 'no user')
         if (session?.user) {
           await checkIfAdmin(session.user)
         } else {
@@ -59,18 +59,27 @@ export function useSupabaseAuth() {
   }, [])
 
   const checkSession = async () => {
+    console.log('🔍 Verificando sessão...')
     try {
       const { data: { session }, error } = await supabase.auth.getSession()
       
       if (error) {
-        console.error('Erro ao verificar sessão:', error)
-        setAuthState(prev => ({ ...prev, loading: false }))
+        console.error('❌ Erro ao verificar sessão:', error.message)
+        setAuthState({
+          user: null,
+          session: null,
+          loading: false,
+          isAuthenticated: false,
+          isAdmin: false
+        })
         return
       }
 
       if (session?.user) {
+        console.log('✅ Sessão encontrada para:', session.user.email)
         await checkIfAdmin(session.user)
       } else {
+        console.log('ℹ️ Nenhuma sessão ativa')
         setAuthState({
           user: null,
           session: null,
@@ -80,16 +89,23 @@ export function useSupabaseAuth() {
         })
       }
     } catch (error) {
-      console.error('Erro ao verificar sessão:', error)
-      setAuthState(prev => ({ ...prev, loading: false }))
+      console.error('❌ Erro ao verificar sessão:', error)
+      setAuthState({
+        user: null,
+        session: null,
+        loading: false,
+        isAuthenticated: false,
+        isAdmin: false
+      })
     }
   }
 
   const checkIfAdmin = async (user: User) => {
+    console.log('👤 Verificando se é admin:', user.email)
     try {
       // Verificar se o usuário tem email
       if (!user.email) {
-        console.warn('Usuário sem email')
+        console.warn('⚠️ Usuário sem email')
         setAuthState({
           user,
           session: null,
@@ -100,16 +116,25 @@ export function useSupabaseAuth() {
         return
       }
 
-      // Verificar se o usuário está na tabela admin_users
-      const { data, error } = await supabase
+      // Verificar se o usuário está na tabela admin_users com timeout
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout verificando admin')), 2000)
+      )
+
+      const queryPromise = supabase
         .from('admin_users')
         .select('*')
         .eq('email', user.email)
         .eq('is_admin', true)
         .single()
 
+      const { data, error } = await Promise.race([
+        queryPromise,
+        timeoutPromise
+      ]) as any
+
       if (error || !data) {
-        console.warn('Usuário não é admin:', user.email)
+        console.warn('⚠️ Usuário não é admin:', user.email)
         setAuthState({
           user,
           session: null,
@@ -120,7 +145,7 @@ export function useSupabaseAuth() {
         return
       }
 
-      console.log('✅ Usuário admin verificado:', user.email)
+      console.log('✅ Admin verificado:', user.email)
       setAuthState({
         user,
         session: null,
@@ -129,7 +154,7 @@ export function useSupabaseAuth() {
         isAdmin: true
       })
     } catch (error) {
-      console.error('Erro ao verificar admin:', error)
+      console.error('❌ Erro ao verificar admin:', error)
       setAuthState({
         user,
         session: null,
