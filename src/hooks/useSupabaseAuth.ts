@@ -93,7 +93,7 @@ export function useSupabaseAuth() {
         .from('admin_users')
         .select('*')
         .eq('email', user.email)
-        .eq('is_active', true)
+        .eq('is_admin', true)
         .single()
 
       if (error || !data) {
@@ -149,7 +149,7 @@ export function useSupabaseAuth() {
         .from('admin_users')
         .select('*')
         .eq('email', email)
-        .eq('is_active', true)
+        .eq('is_admin', true)
         .single()
 
       if (adminError || !adminData) {
