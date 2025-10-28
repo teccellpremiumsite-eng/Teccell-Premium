@@ -166,27 +166,59 @@ export function Gallery() {
 
           <TabsContent value="videos" className="space-y-8">
             {displayVideos.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {displayVideos.map((item) => (
-                  <Card key={item.id} className="group overflow-hidden">
-                    <div className="relative aspect-video">
-                      <video
-                        src={item.url}
-                        controls
-                        className="w-full h-full object-cover"
-                        poster={(item as any).beforeImage}
-                      >
-                        Seu navegador não suporta vídeos.
-                      </video>
-                      <Badge className="absolute top-3 right-3">
-                        {item.category}
-                      </Badge>
-                    </div>
-                    <CardContent className="p-4">
-                      <h3 className="font-semibold mb-2">{item.title}</h3>
-                      <p className="text-sm text-muted-foreground">{item.description}</p>
-                    </CardContent>
-                  </Card>
+                  <Dialog key={item.id}>
+                    <DialogTrigger asChild>
+                      <Card className="group cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                        <div className="relative aspect-video overflow-hidden">
+                          <video
+                            src={item.url}
+                            className="w-full h-full object-cover"
+                            poster={(item as any).beforeImage}
+                          >
+                            Seu navegador não suporta vídeos.
+                          </video>
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300">
+                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                              <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
+                                <Play size={20} className="text-primary" weight="fill" />
+                              </div>
+                            </div>
+                          </div>
+                          <Badge className="absolute top-3 right-3">
+                            {item.category}
+                          </Badge>
+                        </div>
+                        <CardContent className="p-4">
+                          <h3 className="font-semibold mb-2 line-clamp-1">{item.title}</h3>
+                          <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
+                        </CardContent>
+                      </Card>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
+                      <div className="relative">
+                        <video
+                          src={item.url}
+                          controls
+                          autoPlay
+                          className="w-full h-auto max-h-[70vh] object-contain bg-black"
+                          poster={(item as any).beforeImage}
+                        >
+                          Seu navegador não suporta vídeos.
+                        </video>
+                        <div className="p-6">
+                          <div className="flex items-start justify-between mb-4">
+                            <div>
+                              <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
+                              <p className="text-muted-foreground">{item.description}</p>
+                            </div>
+                            <Badge>{item.category}</Badge>
+                          </div>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 ))}
               </div>
             ) : (
