@@ -9,39 +9,18 @@ export class CacheManager {
   static async registerServiceWorker() {
     if ('serviceWorker' in navigator) {
       try {
-        // Desregistrar service workers antigos
+        // DESABILITAR completamente Service Workers - causando problemas de MIME type
         const registrations = await navigator.serviceWorker.getRegistrations();
         for (const registration of registrations) {
           await registration.unregister();
-          console.log('[Cache] Service Worker antigo removido');
+          console.log('[Cache] Service Worker removido (desabilitado permanentemente)');
         }
 
-        // Registrar novo service worker
-        const registration = await navigator.serviceWorker.register('/sw.js', {
-          scope: '/',
-          updateViaCache: 'none' // Nunca usar cache para o SW
-        });
-
-        console.log('[Cache] Service Worker registrado:', registration.scope);
-
-        // NÃO verificar automaticamente - apenas quando necessário
-        // O browser já verifica automaticamente em navegações
-
-        // Listener para atualizações
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing;
-          if (newWorker) {
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'activated') {
-                console.log('[Cache] Nova versão ativada, recarregando...');
-                window.location.reload();
-              }
-            });
-          }
-        });
+        // NÃO registrar novo - deixar o navegador gerenciar cache naturalmente
+        console.log('[Cache] Service Workers desabilitados - usando cache nativo do navegador');
 
       } catch (error) {
-        console.error('[Cache] Erro ao registrar Service Worker:', error);
+        console.error('[Cache] Erro ao remover Service Worker:', error);
       }
     }
   }
