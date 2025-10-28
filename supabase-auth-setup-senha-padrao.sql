@@ -22,6 +22,15 @@ CREATE TABLE public.admin_users (
 ALTER TABLE public.admin_users ENABLE ROW LEVEL SECURITY;
 
 -- 3. Criar policies de segurança
+-- Policy para permitir que usuários autenticados vejam seus próprios registros
+DROP POLICY IF EXISTS "Usuários podem ver próprio registro admin" ON public.admin_users;
+CREATE POLICY "Usuários podem ver próprio registro admin"
+  ON public.admin_users
+  FOR SELECT
+  USING (
+    auth.uid() = user_id
+  );
+
 DROP POLICY IF EXISTS "Admins podem ver todos os registros" ON public.admin_users;
 CREATE POLICY "Admins podem ver todos os registros"
   ON public.admin_users
