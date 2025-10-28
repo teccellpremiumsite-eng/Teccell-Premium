@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Star, Quotes, CaretLeft, CaretRight, GoogleLogo, FacebookLogo, MapPin, DeviceMobile, Calendar } from 'phosphor-react'
+import { Star, Quotes, CaretLeft, CaretRight, GoogleLogo, FacebookLogo, MapPin, DeviceMobile, Calendar, ArrowSquareOut, CheckCircle } from 'phosphor-react'
 import { useTestimonials } from '@/hooks/useTestimonials'
 
 interface Testimonial {
@@ -283,14 +283,16 @@ export function Testimonials() {
 
                   {/* View original review link */}
                   {currentTestimonial.reviewUrl && (
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="mt-2 text-xs"
-                      onClick={() => window.open(currentTestimonial.reviewUrl, '_blank')}
+                    <a
+                      href={currentTestimonial.reviewUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 mt-2 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 dark:hover:bg-blue-950/50 border border-blue-200 dark:border-blue-800 rounded-lg transition-colors"
                     >
-                      Ver avaliação original
-                    </Button>
+                      <CheckCircle weight="fill" className="w-4 h-4" />
+                      <span>Verificar avaliação original</span>
+                      <ArrowSquareOut weight="bold" className="w-4 h-4" />
+                    </a>
                   )}
                 </div>
               </CardContent>

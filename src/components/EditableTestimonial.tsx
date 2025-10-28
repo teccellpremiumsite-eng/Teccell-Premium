@@ -17,7 +17,8 @@ import {
   FacebookLogo,
   ChatCircle,
   CheckCircle,
-  Clock
+  Clock,
+  ArrowSquareOut
 } from 'phosphor-react'
 
 interface Testimonial {
@@ -452,9 +453,11 @@ export function EditableTestimonial({ testimonial, onUpdate, onDelete }: Editabl
                     href={testimonial.review_url} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-blue-500 hover:underline"
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 dark:hover:bg-blue-950/50 px-3 py-1.5 rounded-md border border-blue-200 dark:border-blue-800 transition-colors"
                   >
-                    Ver original
+                    <CheckCircle weight="fill" className="w-3.5 h-3.5" />
+                    <span>Verificar original</span>
+                    <ArrowSquareOut weight="bold" className="w-3.5 h-3.5" />
                   </a>
                 )}
               </div>
