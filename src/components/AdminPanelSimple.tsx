@@ -26,9 +26,12 @@ import {
   ArrowClockwise,
   Spinner,
   Upload,
-  Trash
+  Trash,
+  LockKey
 } from 'phosphor-react'
 import { CacheManager } from '../utils/cacheManager'
+import { ChangePassword } from './ChangePassword'
+import { supabase } from '@/lib/supabase'
 
 interface AdminPanelProps {
   onClose: () => void
@@ -44,6 +47,17 @@ export function AdminPanelSimple({ onClose, onLogout }: AdminPanelProps) {
     completeFirstTimeSetup,
     logout 
   } = useAuth()
+
+  // Buscar email do usuário logado no Supabase
+  React.useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user?.email) {
+        setUserEmail(user.email)
+      }
+    }
+    getUser()
+  }, [])
   
   const { 
     mediaItems, 
@@ -71,6 +85,8 @@ export function AdminPanelSimple({ onClose, onLogout }: AdminPanelProps) {
   const [isAddTestimonialOpen, setIsAddTestimonialOpen] = useState(false)
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [showChangePassword, setShowChangePassword] = useState(false)
+  const [userEmail, setUserEmail] = useState('')
   
   const [newMedia, setNewMedia] = useState({
     type: 'image' as 'image' | 'video',
@@ -291,6 +307,17 @@ export function AdminPanelSimple({ onClose, onLogout }: AdminPanelProps) {
               >
                 <Trash className="w-4 h-4 mr-2" />
                 Limpar Cache
+              </Button>
+
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setShowChangePassword(true)}
+                className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                title="Alterar senha de acesso"
+              >
+                <LockKey className="w-4 h-4 mr-2" />
+                Trocar Senha
               </Button>
               
               <Button variant="outline" size="sm" onClick={onLogout}>
@@ -743,6 +770,14 @@ export function AdminPanelSimple({ onClose, onLogout }: AdminPanelProps) {
           </Tabs>
         </CardContent>
       </Card>
+
+      {/* Modal de troca de senha */}
+      {showChangePassword && userEmail && (
+        <ChangePassword 
+          onClose={() => setShowChangePassword(false)}
+          userEmail={userEmail}
+        />
+      )}
     </div>
   )
 }
