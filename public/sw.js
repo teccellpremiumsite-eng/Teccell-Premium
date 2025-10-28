@@ -26,15 +26,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   console.log('[SW] Ativando nova versão:', CACHE_VERSION);
   event.waitUntil(
-    clients.claim().then(() => {
-      // Recarregar todas as páginas abertas
-      return self.clients.matchAll({ type: 'window' }).then((clients) => {
-        clients.forEach((client) => {
-          console.log('[SW] Recarregando cliente:', client.url);
-          client.navigate(client.url);
-        });
-      });
-    })
+    clients.claim()
   );
 });
 

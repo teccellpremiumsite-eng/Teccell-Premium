@@ -24,13 +24,8 @@ export class CacheManager {
 
         console.log('[Cache] Service Worker registrado:', registration.scope);
 
-        // Verificar atualizações a cada 10 segundos
-        setInterval(() => {
-          registration.update();
-        }, 10000);
-
-        // Forçar atualização imediata
-        await registration.update();
+        // NÃO verificar automaticamente - apenas quando necessário
+        // O browser já verifica automaticamente em navegações
 
         // Listener para atualizações
         registration.addEventListener('updatefound', () => {
@@ -134,18 +129,9 @@ export class CacheManager {
     // Registrar Service Worker
     await this.registerServiceWorker();
 
-    // Verificar se precisa limpar
-    if (this.shouldClearCache()) {
-      console.log('[Cache] Cache desatualizado detectado');
-      await this.clearAllCache();
-      
-      // Recarregar após limpar (com pequeno delay)
-      setTimeout(() => {
-        this.forceReload();
-      }, 500);
-    } else {
-      console.log('[Cache] Cache atualizado');
-    }
+    // NÃO limpar cache automaticamente - apenas quando solicitado
+    // Evita reloads infinitos
+    console.log('[Cache] Sistema de cache ativo');
   }
 
   // Limpar cache manualmente (para admin)
