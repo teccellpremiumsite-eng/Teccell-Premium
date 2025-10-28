@@ -8,11 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { toast } from 'sonner'
-import { useAuth } from '../hooks/useAuth'
 import { useMediaItems } from '../hooks/useMediaItems'
 import { useTestimonials } from '../hooks/useTestimonials'
 import { uploadFile, validateFileType, validateFileSize } from '../lib/upload'
-import { FirstTimeSetup } from './FirstTimeSetup'
 import { EditableMediaItem } from './EditableMediaItem'
 import { EditableTestimonial } from './EditableTestimonial'
 import { 
@@ -39,15 +37,6 @@ interface AdminPanelProps {
 }
 
 export function AdminPanelSimple({ onClose, onLogout }: AdminPanelProps) {
-  const { 
-    user, 
-    loading, 
-    isFirstTimeAccess, 
-    isAuthenticated, 
-    completeFirstTimeSetup,
-    logout 
-  } = useAuth()
-
   // Buscar email do usuário logado no Supabase
   React.useEffect(() => {
     const getUser = async () => {
@@ -241,29 +230,6 @@ export function AdminPanelSimple({ onClose, onLogout }: AdminPanelProps) {
     } else {
       toast.error('Erro ao adicionar depoimento')
     }
-  }
-
-
-  // Se for primeiro acesso, mostrar tela de configuração
-  if (loading) {
-    return (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
-        <div className="text-center text-white">
-          <div className="animate-spin w-8 h-8 border-4 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p>Carregando...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (isFirstTimeAccess) {
-    return (
-      <FirstTimeSetup 
-        onSetupComplete={(password) => {
-          completeFirstTimeSetup(password)
-        }}
-      />
-    )
   }
 
   const handleRefreshAll = async () => {
