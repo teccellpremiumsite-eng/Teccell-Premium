@@ -62,8 +62,12 @@ BEGIN
   RAISE NOTICE 'Usuário admin criado/encontrado com ID: %', admin_user_id;
 END $$;
 
--- 2. Criar tabela admin_users (se não existir)
-CREATE TABLE IF NOT EXISTS public.admin_users (
+-- 2. Recriar tabela admin_users com estrutura correta
+-- Primeiro, dropar a tabela antiga se existir
+DROP TABLE IF EXISTS public.admin_users CASCADE;
+
+-- Criar nova tabela com estrutura correta
+CREATE TABLE public.admin_users (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE NOT NULL,
   email text UNIQUE NOT NULL,
