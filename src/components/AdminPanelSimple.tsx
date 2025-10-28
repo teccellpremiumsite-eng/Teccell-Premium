@@ -192,11 +192,20 @@ export function AdminPanelSimple({ onClose, onLogout }: AdminPanelProps) {
 
   // Função para adicionar novo depoimento
   const handleAddTestimonial = async () => {
+    console.log('📝 Tentando adicionar depoimento:', newTestimonial)
+    
     if (!newTestimonial.name.trim() || !newTestimonial.device.trim() || !newTestimonial.testimonial.trim()) {
       toast.error('Preencha nome, dispositivo e depoimento')
+      console.warn('⚠️ Validação falhou:', {
+        name: newTestimonial.name.trim(),
+        device: newTestimonial.device.trim(),
+        testimonial: newTestimonial.testimonial.trim()
+      })
       return
     }
 
+    console.log('✅ Validação OK, chamando addTestimonial...')
+    
     const result = await addTestimonial({
       name: newTestimonial.name,
       location: newTestimonial.location || null,
@@ -210,6 +219,8 @@ export function AdminPanelSimple({ onClose, onLogout }: AdminPanelProps) {
       verified: newTestimonial.verified,
       review_url: newTestimonial.review_url || null
     })
+
+    console.log('📊 Resultado do addTestimonial:', result)
 
     if (result) {
       toast.success('Depoimento adicionado com sucesso!')
@@ -229,6 +240,7 @@ export function AdminPanelSimple({ onClose, onLogout }: AdminPanelProps) {
       setIsAddTestimonialOpen(false)
     } else {
       toast.error('Erro ao adicionar depoimento')
+      console.error('❌ addTestimonial retornou null/false')
     }
   }
 
