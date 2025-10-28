@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { useAuth } from './useAuth'
 import { addCacheBuster } from '../lib/cacheBusting'
 import type { Database } from '../types/supabase'
 
@@ -13,7 +12,6 @@ export function useMediaItems() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
-  const { user } = useAuth()
 
   // Carregar itens da galeria
   const fetchMediaItems = async () => {
@@ -39,6 +37,9 @@ export function useMediaItems() {
   // Adicionar novo item
   const addMediaItem = async (item: MediaItemInsert): Promise<MediaItem | null> => {
     try {
+      // Get current user from Supabase Auth
+      const { data: { user } } = await supabase.auth.getUser()
+      
       const { data, error } = await supabase
         .from('media_items')
         .insert({
