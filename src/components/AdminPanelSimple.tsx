@@ -25,8 +25,10 @@ import {
   ChatCircle,
   ArrowClockwise,
   Spinner,
-  Upload
+  Upload,
+  Trash
 } from 'phosphor-react'
+import { CacheManager } from '../utils/cacheManager'
 
 interface AdminPanelProps {
   onClose: () => void
@@ -270,9 +272,25 @@ export function AdminPanelSimple({ onClose, onLogout }: AdminPanelProps) {
             </div>
             
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={handleRefreshAll}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleRefreshAll}
+                title="Atualizar dados do Supabase"
+              >
                 <ArrowClockwise className="w-4 h-4 mr-2" />
                 Atualizar
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => CacheManager.manualClear()}
+                className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                title="Limpar cache e forçar atualização do site"
+              >
+                <Trash className="w-4 h-4 mr-2" />
+                Limpar Cache
               </Button>
               
               <Button variant="outline" size="sm" onClick={onLogout}>

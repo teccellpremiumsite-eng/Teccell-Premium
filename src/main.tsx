@@ -8,6 +8,9 @@ import "./main.css"
 import "./styles/theme.css"
 import "./index.css"
 
+// Importar Cache Manager para limpeza automática
+import './utils/cacheManager';
+
 createRoot(document.getElementById('root')!).render(
   <ErrorBoundary FallbackComponent={ErrorFallback}>
     <App />

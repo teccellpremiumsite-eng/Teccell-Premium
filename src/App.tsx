@@ -9,7 +9,6 @@ import { Footer } from './components/Footer'
 import { AdminPanelSimple } from './components/AdminPanelSimple'
 import { LoginForm } from './components/LoginForm'
 import { InitialPasswordSetup } from './components/InitialPasswordSetup'
-import { DebugSupabase } from './components/DebugSupabase'
 import { useAuth } from './hooks/useAuth'
 import { Toaster } from '@/components/ui/sonner'
 
@@ -191,7 +190,6 @@ function App() {
       </main>
       <Footer />
       <Toaster />
-      <DebugSupabase />
     </div>
   )
 }
