@@ -20,6 +20,17 @@ export function useSupabaseAuth() {
   })
 
   useEffect(() => {
+    // Timeout de segurança: se após 10 segundos ainda estiver loading, force false
+    const safetyTimeout = setTimeout(() => {
+      setAuthState(prev => {
+        if (prev.loading) {
+          console.warn('⚠️ Timeout de autenticação - forçando loading = false')
+          return { ...prev, loading: false }
+        }
+        return prev
+      })
+    }, 10000)
+
     // Verificar sessão atual
     checkSession()
 
@@ -42,6 +53,7 @@ export function useSupabaseAuth() {
     )
 
     return () => {
+      clearTimeout(safetyTimeout)
       subscription.unsubscribe()
     }
   }, [])
