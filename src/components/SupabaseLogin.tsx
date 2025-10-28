@@ -63,16 +63,6 @@ export function SupabaseLogin({ onLogin, onCancel }: SupabaseLoginProps) {
         <CardContent>
           {!showResetPassword ? (
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 text-blue-700 text-sm">
-                <div className="flex items-start gap-2">
-                  <Key className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="font-medium">Senha padrão: <code className="bg-blue-100 px-2 py-0.5 rounded">teccell2024</code></p>
-                    <p className="text-xs mt-1">Após o primeiro acesso, troque sua senha no painel admin</p>
-                  </div>
-                </div>
-              </div>
-
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input

@@ -20,9 +20,8 @@ function App() {
 
   // Initialize on app load
   useEffect(() => {
-    console.log('� Sistema Admin TecCell Premium - 100% Supabase')
+    console.log('🔧 Sistema Admin TecCell Premium - 100% Supabase')
     console.log('📋 Para acessar: Ctrl+Shift+A')
-    console.log('� Email: admin@teccellpremium.com.br')
   }, [])
 
   // Login handler para Supabase (assíncrono com email + senha)
