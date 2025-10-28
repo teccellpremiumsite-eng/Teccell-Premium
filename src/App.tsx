@@ -21,20 +21,42 @@ function App() {
   useEffect(() => {
     // Cache busting removido para evitar erros
     
-    // Adicionar função global para resetar via console
-    (window as any).resetAdminSystem = () => {
-      const confirmReset = confirm('⚠️ RESETAR SISTEMA ADMIN?\n\nIsso vai:\n- Apagar senha atual\n- Voltar para primeiro acesso\n- Permitir configurar nova senha\n- Senha padrão será: admin\n\nDeseja continuar?')
+    // Adicionar função global para resetar via console com CÓDIGO DE SEGURANÇA
+    (window as any).resetAdminSystem = (recoveryCode?: string) => {
+      // CÓDIGO DE RECUPERAÇÃO SEGURO - Mude este código para algo que só você saiba!
+      const RECOVERY_CODE = 'TECCELL2024PREMIUM'
+      
+      // Se não passou o código ou o código está errado, pedir o código
+      if (!recoveryCode) {
+        const inputCode = prompt('🔐 CÓDIGO DE RECUPERAÇÃO NECESSÁRIO\n\nDigite o código de recuperação para resetar o sistema admin:')
+        if (!inputCode) {
+          console.log('❌ Reset cancelado')
+          return
+        }
+        recoveryCode = inputCode
+      }
+      
+      // Verificar código de recuperação
+      if (recoveryCode !== RECOVERY_CODE) {
+        alert('❌ CÓDIGO DE RECUPERAÇÃO INVÁLIDO\n\nAcesso negado. O código está incorreto.')
+        console.log('❌ Tentativa de reset com código inválido')
+        return
+      }
+      
+      // Código correto - permitir reset
+      const confirmReset = confirm('✅ CÓDIGO VERIFICADO\n\n⚠️ RESETAR SISTEMA ADMIN?\n\nIsso vai:\n- Apagar senha atual\n- Voltar para primeiro acesso\n- Permitir configurar nova senha\n- Senha padrão será: admin\n\nDeseja continuar?')
+      
       if (confirmReset) {
         resetToDefault()
         setShowAdmin(false)
         setShowLogin(false)
-        console.log('🎯 Sistema resetado!')
+        console.log('🎯 Sistema resetado com sucesso!')
         console.log('📋 Para acessar:\n1. Pressione Ctrl+Shift+A\n2. Digite: admin\n3. Configure nova senha')
       }
     }
     
-    console.log('🔧 Para resetar: resetAdminSystem() | Para acessar: Ctrl+Shift+A')
-    console.log('📋 Senha padrão inicial: admin')
+    console.log('🔧 Sistema Admin TecCell Premium')
+    console.log('📋 Para acessar: Ctrl+Shift+A | Senha padrão: admin')
   }, [resetToDefault])
 
   // Verificar se deve mostrar admin automaticamente
@@ -78,10 +100,23 @@ function App() {
         }
       }
       
-      // Atalho especial para resetar sistema: Ctrl+Shift+R
+      // Atalho especial para resetar sistema: Ctrl+Shift+R (com código de segurança)
       if (e.ctrlKey && e.shiftKey && e.key === 'R') {
         e.preventDefault()
-        const confirmReset = confirm('⚠️ ATENÇÃO: Isso vai resetar o sistema para primeiro acesso.\n\nSenha padrão será: admin\n\nDeseja continuar?')
+        
+        const RECOVERY_CODE = 'TECCELL2024PREMIUM'
+        const inputCode = prompt('🔐 CÓDIGO DE RECUPERAÇÃO NECESSÁRIO\n\nDigite o código de recuperação para resetar o sistema:')
+        
+        if (!inputCode) {
+          return
+        }
+        
+        if (inputCode !== RECOVERY_CODE) {
+          alert('❌ CÓDIGO DE RECUPERAÇÃO INVÁLIDO\n\nAcesso negado.')
+          return
+        }
+        
+        const confirmReset = confirm('✅ CÓDIGO VERIFICADO\n\n⚠️ ATENÇÃO: Isso vai resetar o sistema para primeiro acesso.\n\nSenha padrão será: admin\n\nDeseja continuar?')
         if (confirmReset) {
           resetToDefault()
           setShowAdmin(false)
