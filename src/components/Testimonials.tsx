@@ -160,8 +160,11 @@ export function Testimonials() {
     return Array.from({ length: 5 }, (_, index) => (
       <Star
         key={index}
-        className={`w-4 h-4 ${
-          index < rating ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground'
+        weight="fill"
+        className={`w-6 h-6 ${
+          index < rating 
+            ? 'text-yellow-500 fill-yellow-500 drop-shadow-[0_0_8px_rgba(234,179,8,0.6)]' 
+            : 'text-gray-300 dark:text-gray-600'
         }`}
       />
     ))

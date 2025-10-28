@@ -168,8 +168,13 @@ export function EditableTestimonial({ testimonial, onUpdate, onDelete }: Editabl
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
       <Star 
-        key={i} 
-        className={`w-4 h-4 ${i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+        key={i}
+        weight="fill"
+        className={`w-5 h-5 ${
+          i < rating 
+            ? 'text-yellow-500 fill-yellow-500 drop-shadow-[0_0_6px_rgba(234,179,8,0.5)]' 
+            : 'text-gray-300 dark:text-gray-600'
+        }`}
       />
     ))
   }
@@ -322,7 +327,11 @@ export function EditableTestimonial({ testimonial, onUpdate, onDelete }: Editabl
                       <SelectItem key={rating} value={rating.toString()}>
                         <div className="flex items-center gap-1">
                           {Array.from({ length: rating }, (_, i) => (
-                            <Star key={i} className="w-3 h-3 text-yellow-400 fill-current" />
+                            <Star 
+                              key={i} 
+                              weight="fill"
+                              className="w-4 h-4 text-yellow-500 fill-yellow-500" 
+                            />
                           ))}
                           <span className="ml-1">{rating} estrela{rating > 1 ? 's' : ''}</span>
                         </div>
