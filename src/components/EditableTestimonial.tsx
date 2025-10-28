@@ -391,13 +391,16 @@ export function EditableTestimonial({ testimonial, onUpdate, onDelete }: Editabl
               </div>
 
               <div>
-                <label className="text-sm font-medium">URL da Foto</label>
+                <label className="text-sm font-medium">URL da Avaliação Original</label>
                 <Input
-                  value={editData.avatar_url}
-                  onChange={(e) => setEditData(prev => ({ ...prev, avatar_url: e.target.value }))}
-                  placeholder="https://exemplo.com/foto.jpg"
+                  value={editData.review_url}
+                  onChange={(e) => setEditData(prev => ({ ...prev, review_url: e.target.value }))}
+                  placeholder="https://share.google.com/..."
                   className="mt-1"
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Link para verificação do depoimento
+                </p>
               </div>
             </div>
 
@@ -411,17 +414,6 @@ export function EditableTestimonial({ testimonial, onUpdate, onDelete }: Editabl
                 />
                 Verificado
               </label>
-
-              {editData.platform !== 'local' && (
-                <div className="flex-1">
-                  <Input
-                    value={editData.review_url}
-                    onChange={(e) => setEditData(prev => ({ ...prev, review_url: e.target.value }))}
-                    placeholder="URL da avaliação original"
-                    className="text-sm"
-                  />
-                </div>
-              )}
             </div>
           </div>
         ) : (

@@ -664,13 +664,16 @@ export function AdminPanelSimple({ onClose, onLogout }: AdminPanelProps) {
                           </div>
 
                           <div>
-                            <Label>URL da Foto do Cliente</Label>
+                            <Label>URL da Avaliação Original (para verificação)</Label>
                             <Input
-                              placeholder="https://exemplo.com/foto.jpg"
-                              value={newTestimonial.avatar_url}
-                              onChange={(e) => setNewTestimonial(prev => ({ ...prev, avatar_url: e.target.value }))}
+                              placeholder="https://share.google.com/..."
+                              value={newTestimonial.review_url}
+                              onChange={(e) => setNewTestimonial(prev => ({ ...prev, review_url: e.target.value }))}
                               className="mt-2"
                             />
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Cole o link do Google/Facebook para mostrar botão de verificação
+                            </p>
                           </div>
                         </div>
 
@@ -684,17 +687,6 @@ export function AdminPanelSimple({ onClose, onLogout }: AdminPanelProps) {
                             />
                             <span className="text-sm">Depoimento Verificado</span>
                           </label>
-
-                          {newTestimonial.platform !== 'local' && (
-                            <div className="flex-1">
-                              <Input
-                                placeholder="URL da avaliação original"
-                                value={newTestimonial.review_url}
-                                onChange={(e) => setNewTestimonial(prev => ({ ...prev, review_url: e.target.value }))}
-                                className="text-sm"
-                              />
-                            </div>
-                          )}
                         </div>
 
                         <div className="flex gap-2 pt-4">
