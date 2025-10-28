@@ -72,12 +72,24 @@ export class CacheManager {
     console.log('[Cache] Limpando todo o cache...');
 
     try {
-      // 1. Limpar localStorage (exceto credenciais admin)
-      const adminPassword = localStorage.getItem('admin_password');
-      const recoveryCode = localStorage.getItem('recovery_code');
+      // 1. Preservar TODOS os dados de autenticação antes de limpar
+      const authData = {
+        admin_setup_completed: localStorage.getItem('admin_setup_completed'),
+        admin_password_hash: localStorage.getItem('admin_password_hash'),
+        admin_logged_in: localStorage.getItem('admin_logged_in'),
+        admin_session_expiry: localStorage.getItem('admin_session_expiry'),
+        recovery_code: localStorage.getItem('recovery_code')
+      };
+      
+      // Limpar localStorage
       localStorage.clear();
-      if (adminPassword) localStorage.setItem('admin_password', adminPassword);
-      if (recoveryCode) localStorage.setItem('recovery_code', recoveryCode);
+      
+      // Restaurar dados de autenticação
+      Object.entries(authData).forEach(([key, value]) => {
+        if (value !== null) {
+          localStorage.setItem(key, value);
+        }
+      });
 
       // 2. Limpar sessionStorage
       sessionStorage.clear();
